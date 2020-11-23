@@ -21,6 +21,8 @@
 /* Begin PBXFileReference section */
 		3818AB01256C2FD2003CBBB8 /* i-eel */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "i-eel"; path = "/Users/jbec/Info/codes/i-eel/build/Debug/i-eel"; sourceTree = "<absolute>"; };
 		38EE5A0D256C313E00A7E365 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		38EE5A16256C346C00A7E365 /* fibers.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = fibers.cpp; sourceTree = "<group>"; };
+		38EE5A23256C350400A7E365 /* fibers.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = fibers.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -37,8 +39,18 @@
 		3818AAF8256C2FD2003CBBB8 = {
 			isa = PBXGroup;
 			children = (
+				38EE5A15256C345F00A7E365 /* src */,
 				38EE5A0D256C313E00A7E365 /* .gitignore */,
 			);
+			sourceTree = "<group>";
+		};
+		38EE5A15256C345F00A7E365 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				38EE5A16256C346C00A7E365 /* fibers.cpp */,
+				38EE5A23256C350400A7E365 /* fibers.h */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
