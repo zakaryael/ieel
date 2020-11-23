@@ -6,10 +6,6 @@
 	objectVersion = 50;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		3818AB05256C2FD2003CBBB8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3818AB04256C2FD2003CBBB8 /* main.cpp */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		3818AAFF256C2FD2003CBBB8 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -23,8 +19,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3818AB01256C2FD2003CBBB8 /* i-eel */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "i-eel"; sourceTree = BUILT_PRODUCTS_DIR; };
-		3818AB04256C2FD2003CBBB8 /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3818AB01256C2FD2003CBBB8 /* i-eel */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "i-eel"; path = "/Users/jbec/Info/codes/i-eel/build/Debug/i-eel"; sourceTree = "<absolute>"; };
 		38EE5A0D256C313E00A7E365 /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -43,25 +38,7 @@
 			isa = PBXGroup;
 			children = (
 				38EE5A0D256C313E00A7E365 /* .gitignore */,
-				3818AB03256C2FD2003CBBB8 /* src */,
-				3818AB02256C2FD2003CBBB8 /* programs */,
 			);
-			sourceTree = "<group>";
-		};
-		3818AB02256C2FD2003CBBB8 /* programs */ = {
-			isa = PBXGroup;
-			children = (
-				3818AB01256C2FD2003CBBB8 /* i-eel */,
-			);
-			name = programs;
-			sourceTree = "<group>";
-		};
-		3818AB03256C2FD2003CBBB8 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				3818AB04256C2FD2003CBBB8 /* main.cpp */,
-			);
-			path = src;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -106,7 +83,7 @@
 				Base,
 			);
 			mainGroup = 3818AAF8256C2FD2003CBBB8;
-			productRefGroup = 3818AB02256C2FD2003CBBB8 /* programs */;
+			productRefGroup = 3818AAF8256C2FD2003CBBB8;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
@@ -120,7 +97,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3818AB05256C2FD2003CBBB8 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
