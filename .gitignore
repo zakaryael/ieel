@@ -1,5 +1,6 @@
 .DS_Store
-i-eel.xcodeproj/project.pbxproj
-i-eel.xcodeproj/project.xcworkspace/xcuserdata/
-
+*.aux
+*.log
+*.synctex.gz
+*/xcuserdata/*
 
