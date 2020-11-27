@@ -1,23 +1,53 @@
 \documentclass[a4paper,11pt]{article}
 
-\usepackage{geometry}
-\textheight=18cm
-\textwidth=15 cm
+\usepackage{palatino}
+\usepackage[a4paper,top=2.5cm,left=2.5cm,textwidth=16cm,textheight=24cm]{geometry}
 \usepackage[francais]{babel}
 %\usepackage[latin1]{inputenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[OT1]{fontenc}
 \usepackage{graphicx}
 \usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage[super]{natbib}
 
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
 
 \begin{document}
-\title{Projet Trimestre Recherche ``Fluides''\\ {\large Optimiser le déplacement de micro-nageurs dans des écoulements complexes}}
-\date{\empty}
-\maketitle
+\centerline{\large Projet Trimestre Recherche ``Fluides''}
+\vspace{1cm}
+\centerline{\Large \textbf{Optimiser le déplacement de micro-nageurs}}
+\centerline{\Large \textbf{dans des écoulements complexes}}
 
-Equation d'évolution d'une fibre caractérisée par sa position $\bm X(s,t)$ et paramétrisée par la longueur d'arc $s$ 
+\vspace{2cm}
+
+Les microorganismes tels que les bactéries ou le plancton sont des exemples naturels de particules autopropulsées. Ils inspirent souvent la conception de dispositifs artificiels utilisés pour la micro-fabrication industrielle, l’élimination de déchets toxiques, l'administration ciblée de médica\-ments ou des diagnostiques localisés. De nombreuses questions restent ouvertes sur la façon dont ces micro-nageurs optimisent leur mouvement, et notamment comment ils se comportent dans des écoulements complexes comprenant des parois~\cite{crowdy2010two} ou ayant des propriétés non-newtoniennes~\cite{shen2011undulatory}.
+
+Parmi les différents types de nage, la locomotion ondulatoire est un moyen d'autopropulsion qui repose sur la génération et la propagation d'ondes le long du nageur \cite{cohen2010swimming}. Il s’agit d’une technique relativement simple, mais remarquablement robuste, qui repose sur les interactions avec le fluide. Pour les petits nageurs, les effets d’inertie sont négligeables et la dynamique est décrite par le régime de Stokes. Dans le cas d’un domaine de taille infinie, les forces de traînée et de portance sont alors connues et les nageurs ont une dynamique explicites qui se prête aux techniques de contrôle optimal des équations différentielles pour maximiser la nage \cite{alouges2013self,berti2020swimming}. Toutefois, cette approche ne s’étend pas à des situations plus complexes pour lesquelles il devient indispensable de contrôler en parallèle la dynamique du fluide.
+
+\section{Dynamique d'une fibre flexible dans l'approximation des corps minces}
+Nous considérons que le micro-nageur peut être approché par une fibre de longueur $\ell$, extrêmement fine (dont le diamètre $d$ est tel que $d\ll\ell$)  avec une densité de masse linéique $\sigma$. Elle est caractérisée au temps $t$ par une courbe $\bm X(s,t)\in\mathbb{R}^3$ paramétrisée par sa longueur d'arc $s$.  Cette fibre est considérée semi-flexible, inextensible et plongée dans un champs de vitesse $\bm u(\bm x,t)$.  Sa dynamique est décrite par la théorie des corps minces  et suit l'équation de Newton appliquée à un élément de longueur infinitésimal:
 \begin{equation}
-	\partial_t \bm X = \bm u(\bm X,t) +\frac{1}{\mu} \left[ \partial_s(T\partial_s \bm X) - \partial_s^4 \bm X + \bm F(s,t) \right].
+	\sigma\,\partial_t ^2 \bm X = -\zeta\,\mathbb{D}^{-1} \left[\partial_t \bm X - \bm u(\bm X,t) \right] + \partial_s(T\,\partial_s \bm X) - EI\,\partial_s^4 \bm X + \bm f(s,t).
+	\label{eq:accel_fib}
 \end{equation}
-avec la condition d'inextensibilité $|\partial_s\bm X(s,t)| = 1$ pour tous $s$ et $t$.
+Quatre forces différentes apparaissent dans le membre de droite. Le premier est la force de traînée linéique qui fait intervenir le coefficient de traînée $\zeta = 8\pi\nu\rho_{\rm f}/[2\log(\ell/d)-1]$ (avec $\nu$ la viscosité cinématique du fluide et $\rho_{\rm p}$ sa densité) et la matrice de resistance $\mathbb{D}^{-1}  = \mathbb{I} -(1/2)\, \partial_s\bm X\,\partial_s\bm X^{\mathsf{T}}$. La seconde force et la tension. Son amplitude $T$ est déterminée  par la condition d'inextensibilité $|\partial_s\bm X(s,t)| = 1$, valable à tout instant le long de la fibre. $T$ est ainsi une sorte de multiplicateur de Lagrange. Son expression se déduit à partir de (\ref{eq:accel_fib}) en imposant  $\partial_t |\partial_s\bm X(s,t)|^2 = 0$ et $\partial_t^2|\partial_s\bm X(s,t)|^2 = 0$. La troisième force est l'élasticité de flexion et dépend du module d'Young $E$ et de l'inertie $I$ de la fibre. Finalement, $\bm f$ est une force interne de déformation qui doit être prescrite pour prendre en compte les comportements dits actifs de la fibre, à savoir les mouvements qui sont responsables de sa locomotion.
+
+Nous choisissons pour la force de locomotion une onde se propageant le long de la fibre et qui, en chaque point et à chaque instant, est perpendiculaire à la fibre. Elle s'écrit donc sous la forme
+\begin{equation}
+	\bm f(s,t) = \bm A \times \partial_s \bm X\quad\mbox{avec} 
+	\label{eq:f_locomotion}
+\end{equation}
+
+Dans la limite où les fibres ont une faible inertie, leur dynamique donnée par l'Eq.~(\ref{eq:accel_fib}) peut être simplifiée. Dans ce régime sur-amorti, la vitesse d'un segment infinitésimal de la fibre s'écrit
+\begin{equation}
+	\partial_t \bm X = \bm u(\bm X,t) +\frac{1}{\mu}\,\mathbb{D}\left[ \partial_s(T\partial_s \bm X) - \partial_s^4 \bm X + \bm F(s,t) \right]\!,\quad\mbox{avec}\ \mathbb{D} = \mathbb{I} + \partial_s\bm X\,\partial_s\bm X^{\mathsf{T}},
+\end{equation}
+et la  $\bm F$ désigne ici la force de déformation 
+
+\bibliographystyle{unsrtnat}
+\bibliography{../biblio/biblio}
 
 \end{document}

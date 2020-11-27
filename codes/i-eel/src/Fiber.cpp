@@ -151,6 +151,7 @@ void Fiber::alloc() {
 	NormXi_.set_size(Ns_+1);
 	
 	F_.set_size(Ns_+1,3);
+	D1F_.set_size(Ns_+1,3);
 	
 	Uf_.set_size(Ns_+1,3);
 	D1Uf_.set_size(Ns_+1,3);
@@ -260,7 +261,7 @@ void Fiber::calc_tension() {
 	Lap.diag() -= sum(D2X_.rows(1,Ns_-1)%D2X_.rows(1,Ns_-1),1);
 	
 	MyCol A = -mu_*sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1);
-	A -= sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1)
+	A -= sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1)
 	A += 7.0*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1)
 	+ 6.0*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
 	A += (mu_*beta_)*(1-NormXi_.rows(1,Ns_-1));
@@ -341,5 +342,8 @@ void Fiber::interp_U(Flow& U) {
 }
 
 void Fiber::calc_force() {
-	
+	for(int is=0; is<=Ns_; is++) {
+		F_(is,dim) = ;
+		D1F_(is,dim) = ;
+	}
 }

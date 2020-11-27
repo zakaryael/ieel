@@ -1,6 +1,13 @@
 .DS_Store
 *.aux
 *.log
+*.bbl
+*.blg
+*.out
+*.bcf
+*.run.xml
 *.synctex.gz
-*/xcuserdata/*
+codes/i-eel/i-eel.xcodeproj/project.xcworkspace/xcuserdata/*
+
+
 
