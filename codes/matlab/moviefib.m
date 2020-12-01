@@ -1,6 +1,9 @@
 clear;
-DIRNAME = '../../../../fiberruns/data/';
-IT = 0:200:25000;
+
+% Path to the directory where the data has been stored
+DIRNAME = '../../../../fiberruns/data_swim/';
+
+IT = 0:200:50000;
 
 figure(1), clf
 
@@ -11,6 +14,7 @@ Ns = size(Data,2)/3;
 fclose(fid);
 hpl = plot3(Data(1,1:Ns),Data(2,1:Ns),Data(3,1:Ns),'.-');
 axis equal;
+xlim([-3 1])
 ylim([-0.5 0.5])
 zlim([-0.5 0.5])
 

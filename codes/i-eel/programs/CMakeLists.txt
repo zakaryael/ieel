@@ -4,6 +4,7 @@
 #
 set(program_APPS
   test_buckling
+  test_swim
   )
 
 foreach (program ${program_APPS})

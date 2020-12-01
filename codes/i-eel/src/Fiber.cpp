@@ -10,27 +10,31 @@
 Fiber::Fiber() {
 }
 
-Fiber::Fiber(int Ns, double L, double mu, double beta) {
+Fiber::Fiber(int Ns, double L, double zeta, double E, double beta) {
 	assert(Ns >= 0);
 	Ns_ = Ns;
 	assert(L>0);
 	L_ = L;
 	ds_ = L_/(double)Ns_;
-	assert(mu>0);
-	mu_ = mu;
+	assert(zeta>0);
+	zeta_ = zeta;
+	assert(E>0);
+	E_ = E;
 	assert(beta>0);
 	beta_ = beta;
 	Fiber::alloc();
 }
 
-void Fiber::read(int N, double L, double mu, double beta, Flow& U, const std::string& filebase) {
+void Fiber::read(int N, double L, double zeta, double E, double beta, Flow& U, const std::string& filebase) {
 	// Initial data from file
 	Ns_ = N;
 	assert(L>0);
 	L_ = L;
 	ds_ = L_/(double)Ns_;
-	assert(mu>0);
-	mu_ = mu;
+	assert(zeta>0);
+	zeta_ = zeta;
+	assert(E>0);
+	E_ = E;
 	assert(beta>0);
 	beta_ = beta;
 	
@@ -57,18 +61,21 @@ void Fiber::read(int N, double L, double mu, double beta, Flow& U, const std::st
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
+	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/mu_)*(D1T_%D1X_.col(dim)) + (1.0/mu_)*(T_%D2X_.col(dim)) + (1.0/mu_)*F_.col(dim);
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 }
 
-Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, std::default_random_engine& rng) {
+Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, std::default_random_engine& rng) {
 	// Random initial orientation
 	Ns_ = N;
 	assert(L>0);
 	L_ = L;
 	ds_ = L_/(double)Ns_;
-	assert(mu>0);
-	mu_ = mu;
+	assert(zeta>0);
+	zeta_ = zeta;
+	assert(E>0);
+	E_ = E;
 	assert(beta>0);
 	beta_ = beta;
 	
@@ -86,9 +93,9 @@ Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, std::default_rand
 	rr = sqrt(rr);
 	p(0) /= rr; p(1) /= rr; p(2) /= rr;
 	
-	X_(0,0) = 0;
-	X_(0,1) = 0;
-	X_(0,2) = 0;
+	X_(0,0) = -L_*p(0)/2.0;
+	X_(0,1) = -L_*p(1)/2.0;
+	X_(0,2) = -L_*p(2)/2.0;
 	Xold_(0,0) = X_(0,0); Xold_(0,1) = X_(0,1); Xold_(0,2) = X_(0,2);
 	for(int is=1; is<=Ns_; is++) {
 		X_.row(is) = X_.row(is-1)+ds_*p.t();
@@ -99,18 +106,21 @@ Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, std::default_rand
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
+	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/mu_)*(D1T_%D1X_.col(dim)) + (1.0/mu_)*(T_%D2X_.col(dim)) + (1.0/mu_)*F_.col(dim);
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 }
 
-Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, vector<double> p) {
+Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, vector<double> p) {
 	// Fixed initial orientation
 	Ns_ = N;
 	assert(L>0);
 	L_ = L;
 	ds_ = L_/(double)Ns_;
-	assert(mu>0);
-	mu_ = mu;
+	assert(zeta>0);
+	zeta_ = zeta;
+	assert(E>0);
+	E_ = E;
 	assert(beta>0);
 	beta_ = beta;
 	
@@ -119,9 +129,9 @@ Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, vector<double> p)
 	double rr = sqrt(p.at(0)*p.at(0)+p.at(1)*p.at(1)+p.at(2)*p.at(2));
 	p.at(0) /= rr; p.at(1) /= rr; p.at(2) /= rr;
 	
-	X_(0,0) = 0;
-	X_(0,1) = 0;
-	X_(0,2) = 0;
+	X_(0,0) = -L_*p.at(0)/2.0;
+	X_(0,1) = -L_*p.at(1)/2.0;
+	X_(0,2) = -L_*p.at(2)/2.0;
 	Xold_(0,0) = X_(0,0); Xold_(0,1) = X_(0,1); Xold_(0,2) = X_(0,2);
 	for(int is=1; is<=Ns_; is++) {
 		for(int idim=0; idim<3; ++idim)
@@ -133,8 +143,9 @@ Fiber::Fiber(int N, double L, double mu, double beta, Flow& U, vector<double> p)
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
+	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/mu_)*(D1T_%D1X_.col(dim)) + (1.0/mu_)*(T_%D2X_.col(dim)) + (1.0/mu_)*F_.col(dim);
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 }
 
 void Fiber::alloc() {
@@ -214,12 +225,25 @@ void Fiber::alloc() {
 	
 }
 
-void setforcing(double k, double omega, double A) {
-	k_ = k;
-	om_ = omega;
-	A_ = A;
+void Fiber::setforcing(vector<double> p, double nu, double om, double tau, int eps) {
+	if(p.size() != 3)
+		ErrorMsg("The direction of helix should be a vector of dimension 3");
+	p_ = p;
+	F0_ = 0.0;
+	nu_ = nu;
+	om_ = om;
+	if(tau>1.0)
+		ErrorMsg("Error: the twist should be in [0,1]");
+	R_ = sqrt(1-tau*tau)/nu_;
+	A_ = zeta_*R_*om_*(4.0-tau*tau)/(4.0-2.0*tau*tau);
+	if((eps != 1) && (eps !=-1))
+		ErrorMsg("The helix chirality should be +1 or -1");
+	eps_ = eps;
 }
 
+void Fiber::setforcing(vector<double> p, int k, double om, double tau, int eps) {
+	setforcing(p, 2.0*M_PI*k/L_, om, tau, eps);
+}
 
 void Fiber::save(const std::string& filebase) const {
 	char cname[512];
@@ -260,19 +284,16 @@ void Fiber::calc_tension() {
 	MySpMat Lap = 2.0*LapDirich_;
 	Lap.diag() -= sum(D2X_.rows(1,Ns_-1)%D2X_.rows(1,Ns_-1),1);
 	
-	MyCol A = -mu_*sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1);
-	A -= sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1)
-	A += 7.0*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1)
-	+ 6.0*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
-	A += (mu_*beta_)*(1-NormXi_.rows(1,Ns_-1));
-	
+	MyCol A = -zeta_*sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1);
+	A -= sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1);
+	A += 7.0*E_*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1) + 6.0*E_*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
+	A += (zeta_*beta_)*(1-NormXi_.rows(1,Ns_-1));
 	MyCol  Ttmp;
 	if(spsolve(Ttmp,Lap,A,"superlu")==false || isnan(Ttmp(0))) {
 		cerr<<"No solution for the tension"<<endl;
 		X_.save("X.dat",raw_ascii);
 		exit(-1);
 	}
-	
 	T_(0) = 0;
 	T_.rows(1,Ns_-1) = Ttmp;
 	T_(Ns_) = 0;
@@ -289,8 +310,10 @@ void Fiber::evol(double dt, Flow& U) {
 	D1T_ = D1_*T_;
 	
 	MyMat G(Ns_+1,3);
+	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
+	
 	for(int dim=0; dim<3; dim++)
-	G.col(dim) = Uf_.col(dim) + (2.0/mu_)*(D1T_%D1X_.col(dim)) + (1.0/mu_)*(T_%D2X_.col(dim));
+	G.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 	
 	MyMat RHS = (4.0/3.0)*X_.rows(2,Ns_-2)-(1.0/3.0)*Xold_.rows(2,Ns_-2)+(2*dt_/3.0)*(2*G.rows(2,Ns_-2)-Gold_.rows(2,Ns_-2));
 	MyMat XXi = D1_*(2.0*X_-Xold_);
@@ -311,7 +334,7 @@ void Fiber::evol(double dt, Flow& U) {
 	Axz = Axz*Op4_;
 	Ayz = Ayz*Op4_;
 	
-	MySpMat MM = speye<MySpMat>(3*nn,3*nn) + (2.0*dt_/(3.0*mu_))*join_cols(join_rows(Axx*Op4_,join_rows(Axy,Axz)), join_cols(join_rows(Axy,join_rows(Ayy*Op4_,Ayz)), join_rows(Axz,join_rows(Ayz,Azz*Op4_))));
+	MySpMat MM = speye<MySpMat>(3*nn,3*nn) + (2.0*E_*dt_/(3.0*zeta_))*join_cols(join_rows(Axx*Op4_,join_rows(Axy,Axz)), join_cols(join_rows(Axy,join_rows(Ayy*Op4_,Ayz)), join_rows(Axz,join_rows(Ayz,Azz*Op4_))));
 	
 	MyMat Xnew(3*nn,1);
 	if(spsolve(Xnew,MM,vectorise(RHS),"superlu")==false || isnan(Xnew(0))) {
@@ -328,6 +351,7 @@ void Fiber::evol(double dt, Flow& U) {
 	X_.row(Ns_-1) = (28.0/11.0)*Xnew.row(Ns_-4)-(23.0/11.0)*Xnew.row(Ns_-5)+(6.0/11.0)*Xnew.row(Ns_-6);
 	X_.row(Ns_)   = (48.0/11.0)*Xnew.row(Ns_-4)-(52.0/11.0)*Xnew.row(Ns_-5)+(15.0/11.0)*Xnew.row(Ns_-6);
 	
+	t_ += dt;
 }
 
 void Fiber::interp_U(Flow& U) {
@@ -342,8 +366,35 @@ void Fiber::interp_U(Flow& U) {
 }
 
 void Fiber::calc_force() {
-	for(int is=0; is<=Ns_; is++) {
-		F_(is,dim) = ;
-		D1F_(is,dim) = ;
+	if(p_.size()==3) {
+		double m[3], n[3];
+		double s = sqrt(p_.at(0)*p_.at(0)+p_.at(1)*p_.at(1)+p_.at(2)*p_.at(2));
+		p_.at(0) /= s; p_.at(1) /= s; p_.at(2) /= s;
+		if(p_.at(0)==1.0) {
+			m[0]=0; m[1]=1; m[2]=0;
+			n[0]=0; n[1]=0; n[2]=eps_;
+		}
+		else {
+			s = sqrt(1.0-p_.at(0)*p_.at(0));
+			m[0]=0; m[1]=-p_.at(2)/s; m[2]=p_.at(1)/s;
+			n[0]=eps_*(p_.at(1)*p_.at(1)+p_.at(2)*p_.at(2))/s;
+			n[1]=-eps_*p_.at(0)*p_.at(1)/s; n[2]=-eps_*p_.at(0)*p_.at(2)/s;
+		}
+		double C, S, B = R_*E_*pow(nu_,4.0);
+		for(int is=0; is<=Ns_; is++) {
+			C = cos(nu_*(double)is*ds_-om_*t_);
+			S = sin(nu_*(double)is*ds_-om_*t_);
+			for(int dim=0; dim<3; ++dim) {
+				F_(is,dim) = F0_*p_.at(dim) + B*(C*m[dim]+S*n[dim]) + A_*(S*m[dim]-C*n[dim]);
+				D1F_(is,dim) = nu_*( B*(-S*m[dim]+C*n[dim]) + A_*(C*m[dim]+S*n[dim]) );
+			}
+		}
+	}
+	else {
+		for(int is=0; is<=Ns_; is++)
+			for(int dim=0; dim<3; ++dim) {
+				F_(is,dim) = 0.0;
+				D1F_(is,dim) = 0.0;
+			}
 	}
 }

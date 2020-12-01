@@ -22,19 +22,28 @@ class Fiber {
 public:
 	// Calss initialisation
 	Fiber();
-	Fiber(int Ns, double L, double mu, double beta);
-	Fiber(int N, double L, double mu, double beta, Flow& U, std::default_random_engine& rng);
-	Fiber(int N, double L, double mu, double beta, Flow& U, vector<double> p);
-	void read(int N, double L, double mu, double beta, Flow& U, const std::string& filebase);
+	Fiber(int Ns, double L, double zeta, double E, double beta);
+	Fiber(int N, double L, double zeta, double E, double beta, Flow& U, std::default_random_engine& rng);
+	Fiber(int N, double L, double zeta, double E, double beta, Flow& U, vector<double> p);
+	void read(int N, double L, double zeta, double E, double beta, Flow& U, const std::string& filebase);
 	void alloc();
 	// save the fiber configuration to a file
 	void save(const std::string& filebase) const;
 	// set the forcing parameters
-	void setforcing(double k, double omega, double A);
+	void setforcing(vector<double> p, double nu, double om, double A, int eps=1);
+	// set the forcing parameters
+	void setforcing(vector<double> p, int k, double om, double A, int eps=1);
 	// compute the tension forces
 	void calc_tension();
 	// time evolution over a time step dt
 	void evol(double dt, Flow& U);
+	// compute the position of the center of mass
+	inline double getcenter(int dim) {
+		double x = 0;
+		for(int is=0; is<=Ns_; ++is)
+		x += X_(is,dim);
+		return x/((double)(Ns_+1));
+	}
 	// compute the end-to-end length
 	inline double endtoend() const {
 		return sqrt((X_(Ns_,0)-X_(0,0))*(X_(Ns_,0)-X_(0,0)) + (X_(Ns_,1)-X_(0,1))*(X_(Ns_,1)-X_(0,1)) + (X_(Ns_,2)-X_(0,2))*(X_(Ns_,2)-X_(0,2)));
@@ -53,20 +62,25 @@ public:
 		X_.save(filebase+"_X.dat",raw_ascii);
 		T_.save(filebase+"_T.dat",raw_ascii);
 	}
-	// set the forcing parameters
-	
 	// return internal variables
 	inline double L() const { return L_; };
 	inline int N() const { return Ns_; };
-	
+
 private:
+	// Time
+	double t_ = 0.0;
 	// Physical parameters
-	double L_;
-	double mu_;
+	double L_;    // Fiber length
+	double zeta_; // Viscous friction coefficient
+	double E_;    // Young modulus
 	// Forcing parameters (set by default to 0)
-	double k_ = 0.0;
-	double om_ = 0.0;
-	double A_ = 0.0;
+	vector<double> p_; // direction of the helix
+	double F0_ = 0.0;  // force in the p direction
+	double nu_ = 0.0;  // wavenumber
+	double om_ = 0.0;  // frequency
+	int eps_ = 1;      // chirality
+	double R_ = 0.0;   // helix radius
+	double A_ = 0.0;   // internal amplitude
 	// Numerical parameters
 	int Ns_;
 	double ds_;

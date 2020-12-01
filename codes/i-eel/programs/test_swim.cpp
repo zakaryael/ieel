@@ -1,8 +1,8 @@
 //
-//  test_buckling.cpp
+//  test_swim.cpp
 //  i-eel
 //
-//  Created by Jeremie Bec on 25/11/2020.
+//  Created by Jeremie Bec on 28/11/2020.
 //
 
 #include "src/Fiber.hpp"
@@ -21,38 +21,43 @@ int main(int argc, char* argv[]) {
 	// Read the command-line options
 	args.section("Program options");
 	const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
-	const double sig = args.getreal("-sig", "--shear", 1.0, "shear amplitude");
-	const double dev = args.getreal("-d", "--deviation", 0.1, "initial deviation of the orientation");
 	const double L = args.getreal("-L", "--length", 1.0, "fiber length");
-	const double zeta = args.getreal("-z", "--zeta", 1e6, "friction coefficients");
+	const double zeta = args.getreal("-z", "--zeta", 1e6, "friction coefficient");
 	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-	const double Tmax = args.getreal("-T", "--time", 25.0, "integration time");
+	const double Tmax = args.getreal("-T", "--time", 50.0, "integration time");
 	const int Nout = args.getint("-nout", "--step_out", 200, "output period (in number of timesteps)");
 	const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
+	const int k = args.getint("-k", "--wavenumber", 5, "Forcing wavenumber");
+	const double om = args.getreal("-om", "--frequency", 5.0, "Forcing frequency");
+	const double Tw = args.getreal("-tw", "--twist", 0.1, "Forcing twist");
+	const int eps = args.getint("-e", "--chiral", 1, "Forcing chirality");
+	
 	args.check();
 	mkdir(outdir);
 	args.save(outdir);
 	
-	// define the flow
-	cout<<endl<<"------------------------------------------------"<<endl;
-	cout<<"Generating a pure shear flow"<<endl;
-	Flow U(sig);
-	cout<<"     [\t\t"<<U.gradient(0,0,0,0)<<"\t"<<U.gradient(0,0,0,1)<<"\t"<<U.gradient(0,0,0,2)<<"\t]"<<endl;
-	cout<<"DU = [\t\t"<<U.gradient(0,0,0,3)<<"\t"<<U.gradient(0,0,0,4)<<"\t"<<U.gradient(0,0,0,5)<<"\t]"<<endl;
-	cout<<"     [\t\t"<<U.gradient(0,0,0,6)<<"\t"<<U.gradient(0,0,0,7)<<"\t"<<U.gradient(0,0,0,8)<<"\t]"<<endl;
+	// fluid flow set to 0
+	Flow U(0);
 	
 	// define the fiber
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"Generating a straight fiber of length "<<L<<endl;
 	cout<<"with fric. coeff. "<<zeta<<" and Young modulus"<<E<<endl;
 	vector<double> p(3);
-	p.at(0) = sqrt(1-dev*dev);
-	p.at(1) = -dev;
+	p.at(0) = 1;
+	p.at(1) = 0;
 	p.at(2) = 0;
 	cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<","<<p.at(2)<<")"<<endl;
 	Fiber Fib(Ns,L,zeta,E,beta,U,p);
+	
+	// set the forcing
+	cout<<endl<<"------------------------------------------------"<<endl;
+	cout<<"k="<<k<<"\tom="<<om<<"\ttwist="<<Tw<<endl;
+	cout<<"in the direction ("<<p.at(0)<<","<<p.at(1)<<","<<p.at(2)<<")"<<endl;
+	cout<<"Predicted velocity: "<<(om/(2.0*M_PI*k/L))*Tw*(1-Tw*Tw)/(2-Tw*Tw)<<endl;
+	Fib.setforcing(p, k, om, Tw, eps);
 	
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;
@@ -62,17 +67,22 @@ int main(int argc, char* argv[]) {
 	int it = 0;
 	double t = 0;
 	
+	double x0,x;
+	x0 = Fib.getcenter(0);
 	while(it<nstep) {
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
-			cout<<"t = "<<t<<setw(10)<<"Lee = "<<Fib.endtoend()<<endl;
+			x = Fib.getcenter(0);
+			cout<<"t = "<<t<<setw(10)<<"Vx = "<<(x-x0)/(Nout*dt)<<endl;
+			x0 = x;
 			Fib.save(outdir+"fiber"+i2s(it)+".ff");
 		}
+		
 		Fib.evol(dt,U);
 		t += dt;
 		it++;
- 	}
+	}
 	Fib.save(outdir+"fiber"+i2s(it)+".ff");
 	return 1;
 }

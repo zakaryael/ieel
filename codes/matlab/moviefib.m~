@@ -1,6 +1,0 @@
-DIRNAME = '../../../../fiberruns/data/';
-IT = 0:100:9900;
-
-for it=IT
-    fname 
-    fid = fopen('
