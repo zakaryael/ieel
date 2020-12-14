@@ -76,13 +76,13 @@ int main(int argc, char* argv[]) {
 			x = Fib.getcenter(0);
 			cout<<"t = "<<t<<setw(10)<<"Vx = "<<(x-x0)/(Nout*dt)<<endl;
 			x0 = x;
-			Fib.save(outdir+"fiber"+i2s(it)+".ff");
+			Fib.save(outdir+"fiber"+i2s(it)+".nc");
 		}
 		
 		Fib.evol(dt,U);
 		t += dt;
 		it++;
 	}
-	Fib.save(outdir+"fiber"+i2s(it)+".ff");
+	Fib.save(outdir+"fiber"+i2s(it)+".nc");
 	return 1;
 }

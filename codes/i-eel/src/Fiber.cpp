@@ -246,30 +246,92 @@ void Fiber::setforcing(vector<double> p, int k, double om, double tau, int eps) 
 }
 
 void Fiber::save(const std::string& filebase) const {
-	char cname[512];
-	strcpy(cname, filebase.c_str());
-	FILE *fout = fopen(cname,"w");
-	
-	for(int is=0; is<=Ns_; is++) {
-		fwrite(&X_(is,0), sizeof(double), 1, fout);
-		fwrite(&X_(is,1), sizeof(double), 1, fout);
-		fwrite(&X_(is,2), sizeof(double), 1, fout);
+	if(filebase.substr(filebase.length()-3,3) == ".ff") {
+		char cname[512];
+		strcpy(cname, filebase.c_str());
+		FILE *fout = fopen(cname,"w");
+		
+		for(int is=0; is<=Ns_; is++) {
+			fwrite(&X_(is,0), sizeof(double), 1, fout);
+			fwrite(&X_(is,1), sizeof(double), 1, fout);
+			fwrite(&X_(is,2), sizeof(double), 1, fout);
+		}
+		
+		MyMat V = (X_-Xold_)/dt_;
+		for(int is=0; is<=Ns_; is++) {
+			fwrite(&V(is,0), sizeof(double), 1, fout);
+			fwrite(&V(is,1), sizeof(double), 1, fout);
+			fwrite(&V(is,2), sizeof(double), 1, fout);
+		}
+		
+		for(int is=0; is<=Ns_; is++) {
+			fwrite(&Uf_(is,0), sizeof(double), 1, fout);
+			fwrite(&Uf_(is,1), sizeof(double), 1, fout);
+			fwrite(&Uf_(is,2), sizeof(double), 1, fout);
+		}
+		
+		fclose(fout);
 	}
-	
-	MyMat V = (X_-Xold_)/dt_;
-	for(int is=0; is<=Ns_; is++) {
-		fwrite(&V(is,0), sizeof(double), 1, fout);
-		fwrite(&V(is,1), sizeof(double), 1, fout);
-		fwrite(&V(is,2), sizeof(double), 1, fout);
+	else if(filebase.substr(filebase.length()-3,3) == ".nc"){
+		int status, ncid;
+		if ((status = nc_create(filebase.c_str(), NC_NETCDF4, &ncid)))
+			ErrorMsg("NetCDF 0: "+std::string(nc_strerror(status)));
+		
+		// Conventional global attributes
+		char project[] = "i-eel";
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "Conventions", strlen(project), project)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		char title[] = "Elongated swimmer";
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "title", strlen(title), title)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "shearbox_version", strlen(IEEL_VERSION), IEEL_VERSION)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "compiler_version", strlen(COMPILER_VERSION), COMPILER_VERSION)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		time_t rawtime;  // current time
+		struct tm* timeinfo;
+		char tbuffer[80];
+		time(&rawtime);
+		timeinfo = localtime(&rawtime);
+		strftime(tbuffer, 80, "%Y-%m-%d %I:%M:%S", timeinfo);
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "time", strlen(tbuffer), tbuffer)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		char hostname[1024];
+		gethostname(hostname, 1023);
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "host_name", strlen(hostname), hostname)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		char reference[] = "Data from the i-eel code";
+		if ((status = nc_put_att_text(ncid, NC_GLOBAL, "references", strlen(reference), reference)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Define and write variables
+		int dimid[2];
+		int id;
+		if ((status = nc_def_dim(ncid, "dim", 3, &dimid[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_def_dim(ncid, "Ns", Ns_+1, &dimid[1])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Position
+		if ((status = nc_def_var(ncid, "Pos", NC_DOUBLE, 2, dimid, &id)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_var_double(ncid, id, &X_[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Velocity
+		MyMat V = (X_-Xold_)/dt_;
+		if ((status = nc_def_var(ncid, "Vel", NC_DOUBLE, 1, dimid, &id)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_var_double(ncid, id, &V[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Theta
+		if ((status = nc_def_var(ncid, "Vel_fluid", NC_DOUBLE, 1, dimid, &id)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_var_double(ncid, id, &Uf_[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Close the netcdf file
+		if ((status = nc_close(ncid)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 	}
-	
-	for(int is=0; is<=Ns_; is++) {
-		fwrite(&Uf_(is,0), sizeof(double), 1, fout);
-		fwrite(&Uf_(is,1), sizeof(double), 1, fout);
-		fwrite(&Uf_(is,2), sizeof(double), 1, fout);
-	}
-	
-	fclose(fout);
+	else
+		ErrorMsg("Unknown output format for file "+filebase);
 }
 
 void Fiber::diff() {
@@ -392,9 +454,9 @@ void Fiber::calc_force() {
 	}
 	else {
 		for(int is=0; is<=Ns_; is++)
-			for(int dim=0; dim<3; ++dim) {
-				F_(is,dim) = 0.0;
-				D1F_(is,dim) = 0.0;
-			}
+		for(int dim=0; dim<3; ++dim) {
+			F_(is,dim) = 0.0;
+			D1F_(is,dim) = 0.0;
+		}
 	}
 }
