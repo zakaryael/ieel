@@ -235,7 +235,8 @@ void Fiber::setforcing(vector<double> p, double nu, double om, double tau, int e
 	if(tau>1.0)
 		ErrorMsg("Error: the twist should be in [0,1]");
 	R_ = sqrt(1-tau*tau)/nu_;
-	A_ = zeta_*R_*om_*(4.0-tau*tau)/(4.0-2.0*tau*tau);
+	//wrong expression: A_ = zeta_*R_*om_*(4.0-tau*tau)/(4.0-2.0*tau*tau);
+	A_ = zeta_*R_*om_/(2.0-tau*tau);
 	if((eps != 1) && (eps !=-1))
 		ErrorMsg("The helix chirality should be +1 or -1");
 	eps_ = eps;
@@ -377,7 +378,7 @@ void Fiber::evol(double dt, Flow& U) {
 	for(int dim=0; dim<3; dim++)
 	G.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 	
-	MyMat RHS = (4.0/3.0)*X_.rows(2,Ns_-2)-(1.0/3.0)*Xold_.rows(2,Ns_-2)+(2*dt_/3.0)*(2*G.rows(2,Ns_-2)-Gold_.rows(2,Ns_-2));
+	MyMat RHS = (4.0/3.0)*X_.rows(2,Ns_-2)-(1.0/3.0)*Xold_.rows(2,Ns_-2)+(2.0*dt_/3.0)*(2.0*G.rows(2,Ns_-2)-Gold_.rows(2,Ns_-2));
 	MyMat XXi = D1_*(2.0*X_-Xold_);
 	XXi = XXi.rows(2,Ns_-2);
 	
@@ -386,9 +387,9 @@ void Fiber::evol(double dt, Flow& U) {
 	
 	int nn = Ns_-3;
 	MySpMat Axx(nn,nn), Ayy(nn,nn), Azz(nn,nn), Axy(nn,nn), Axz(nn,nn), Ayz(nn,nn);
-	Axx.diag() = XXi.col(0) % XXi.col(0) + 1;
-	Ayy.diag() = XXi.col(1) % XXi.col(1) + 1;
-	Azz.diag() = XXi.col(2) % XXi.col(2) + 1;
+	Axx.diag() = XXi.col(0) % XXi.col(0) + 1.0;
+	Ayy.diag() = XXi.col(1) % XXi.col(1) + 1.0;
+	Azz.diag() = XXi.col(2) % XXi.col(2) + 1.0;
 	Axy.diag() = XXi.col(0) % XXi.col(1);
 	Axz.diag() = XXi.col(0) % XXi.col(2);
 	Ayz.diag() = XXi.col(1) % XXi.col(2);
@@ -432,9 +433,9 @@ void Fiber::calc_force() {
 		double m[3], n[3];
 		double s = sqrt(p_.at(0)*p_.at(0)+p_.at(1)*p_.at(1)+p_.at(2)*p_.at(2));
 		p_.at(0) /= s; p_.at(1) /= s; p_.at(2) /= s;
-		if(p_.at(0)==1.0) {
+		if(p_.at(0)==1.0 || p_.at(0)==-1.0) {
 			m[0]=0; m[1]=1; m[2]=0;
-			n[0]=0; n[1]=0; n[2]=eps_;
+			n[0]=0; n[1]=0; n[2]=(double)eps_;
 		}
 		else {
 			s = sqrt(1.0-p_.at(0)*p_.at(0));
