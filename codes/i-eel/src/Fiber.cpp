@@ -318,12 +318,12 @@ void Fiber::save(const std::string& filebase) const {
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		// Velocity
 		MyMat V = (X_-Xold_)/dt_;
-		if ((status = nc_def_var(ncid, "Vel", NC_DOUBLE, 1, dimid, &id)))
+		if ((status = nc_def_var(ncid, "Vel", NC_DOUBLE, 2, dimid, &id)))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		if ((status = nc_put_var_double(ncid, id, &V[0])))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		// Theta
-		if ((status = nc_def_var(ncid, "Vel_fluid", NC_DOUBLE, 1, dimid, &id)))
+		if ((status = nc_def_var(ncid, "Vel_fluid", NC_DOUBLE, 2, dimid, &id)))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		if ((status = nc_put_var_double(ncid, id, &Uf_[0])))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
