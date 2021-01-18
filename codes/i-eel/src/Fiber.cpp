@@ -348,8 +348,8 @@ void Fiber::calc_tension() {
 	Lap.diag() -= sum(D2X_.rows(1,Ns_-1)%D2X_.rows(1,Ns_-1),1);
 	
 	MyCol A = -zeta_*sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1);
-	A -= sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1);
-	A += 7.0*E_*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1) + 6.0*E_*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
+	A -= sum(D2X_.rows(1,Ns_-1)%F_.rows(1,Ns_-1),1) + 2.0*sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1);
+	A -= 7.0*E_*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1) + 6.0*E_*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
 	A += (zeta_*beta_)*(1-NormXi_.rows(1,Ns_-1));
 	MyCol  Ttmp;
 	if(spsolve(Ttmp,Lap,A,"superlu")==false || isnan(Ttmp(0))) {
