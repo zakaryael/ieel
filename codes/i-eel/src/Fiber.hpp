@@ -34,6 +34,10 @@ public:
 	// set the forcing parameters
 	void setforcing(vector<double> p, int k, double om, double A, int eps=1);
 	// compute the tension forces
+    void setforcing2(vector<double> p, double nu, double om, double alpha, int eps=1);
+    // set the forcing parameters
+    void setforcing2(vector<double> p, int k, double om, double alpha, int eps=1);
+    // compute the tension forces
 	void calc_tension();
 	// time evolution over a time step dt
 	void evol(double dt, Flow& U);
@@ -81,6 +85,7 @@ private:
 	int eps_ = 1;      // chirality
 	double R_ = 0.0;   // helix radius
 	double A_ = 0.0;   // internal amplitude
+    double alpha_;  //force amplitude
 	// Numerical parameters
 	int Ns_;
 	double ds_;

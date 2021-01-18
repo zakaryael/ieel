@@ -246,6 +246,27 @@ void Fiber::setforcing(vector<double> p, int k, double om, double tau, int eps) 
 	setforcing(p, 2.0*M_PI*k/L_, om, tau, eps);
 }
 
+void Fiber::setforcing2(vector<double> p, double nu, double om, double alpha, int eps) {
+    if(p.size() != 3)
+        ErrorMsg("The direction of helix should be a vector of dimension 3");
+    if(alpha<0 || alpha>1.0)
+		ErrorMsg("Error: the parameter alpha should be in [0,1]");
+	alpha_ = alpha;
+	p_ = p;
+	F0_ = 0.0;
+    nu_ = nu;
+    om_ = om;
+    A_ = zeta_*alpha_*om_/(2.0*nu_);
+    R_ = (1.0/nu_)*((1.0/alpha_) - sqrt((1.0/(alpha_*alpha_))-1.0));
+    if((eps != 1) && (eps !=-1))
+        ErrorMsg("The helix chirality should be +1 or -1");
+    eps_ = eps;
+}
+
+void Fiber::setforcing2(vector<double> p, int k, double om, double alpha, int eps) {
+    setforcing(p, 2.0*M_PI*k/L_, om, alpha, eps);
+}
+
 void Fiber::save(const std::string& filebase) const {
 	if(filebase.substr(filebase.length()-3,3) == ".ff") {
 		char cname[512];

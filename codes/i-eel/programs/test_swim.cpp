@@ -31,8 +31,9 @@ int main(int argc, char* argv[]) {
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
 	const int k = args.getint("-k", "--wavenumber", 5, "Forcing wavenumber");
 	const double om = args.getreal("-om", "--frequency", 5.0, "Forcing frequency");
-	const double Tw = args.getreal("-tw", "--twist", 0.1, "Forcing twist");
+	//const double Tw = args.getreal("-tw", "--twist", 0.1, "Forcing twist");
 	const int eps = args.getint("-e", "--chiral", 1, "Forcing chirality");
+    const double alpha = args.getreal("-alpha", "--alpha", 0.5, "Force amplitude");
 	
 	args.check();
 	mkdir(outdir);
@@ -54,10 +55,12 @@ int main(int argc, char* argv[]) {
 	
 	// set the forcing
 	cout<<endl<<"------------------------------------------------"<<endl;
-	cout<<"k="<<k<<"\tom="<<om<<"\ttwist="<<Tw<<endl;
+	cout<<"k="<<k<<"\tom="<<om<<"\talpha="<<alpha<<endl;
 	cout<<"in the direction ("<<p.at(0)<<","<<p.at(1)<<","<<p.at(2)<<")"<<endl;
-	cout<<"Predicted velocity: "<<(om/(2.0*M_PI*k/L))*Tw*(1-Tw*Tw)/(2-Tw*Tw)<<endl;
-	Fib.setforcing(p, k, om, Tw, eps);
+	double nu = 2.0*M_PI*(double)k/L;
+    double Rdeb = (1.0/nu)*((1.0/alpha) - sqrt((1.0/(alpha*alpha))-1.0));
+	cout<<"Predicted velocity: "<<-(alpha*om*Rdeb*sqrt(1.0-nu*nu*Rdeb*Rdeb)/2.0)<<endl;
+	Fib.setforcing2(p, nu, om, alpha, eps);
 	
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;
