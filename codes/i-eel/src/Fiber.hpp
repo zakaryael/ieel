@@ -28,7 +28,7 @@ public:
 	void read(int N, double L, double zeta, double E, double beta, Flow& U, const std::string& filebase);
 	void alloc();
 	// save the fiber configuration to a file
-	void save(const std::string& filebase) const;
+	void save(const std::string& filebase, Flow&U);
 	// set the forcing parameters
 	void setforcing(vector<double> p, double nu, double om, double A, int eps=1);
 	// set the forcing parameters
@@ -96,7 +96,7 @@ private:
 	MyMat D1X_, D2X_, D3X_, D4X_; // derivatives
 	MyCol NormXi_, T_, D1T_; // tension
 	MyMat  Uf_, D1Uf_; // fluid velocity at particle position
-	MyMat F_, D1F_; // forcing
+	MyMat FA_, FB_, D1F_; // forcing
 	// Derivative matrices
 	MySpMat D1_, D2_, D3_, D4_, LapDirich_, Op4_;
 	// Internal functions

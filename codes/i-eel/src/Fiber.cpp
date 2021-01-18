@@ -61,9 +61,9 @@ void Fiber::read(int N, double L, double zeta, double E, double beta, Flow& U, c
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
-	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
+	MyCol SF = (FA_.col(0)+FB_.col(0))%D1X_.col(0)+(FA_.col(1)+FB_.col(1))%D1X_.col(1)+(FA_.col(2)+FB_.col(2))%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(FA_.col(dim)+FB_.col(dim)+SF%D1X_.col(dim));
 }
 
 Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, std::default_random_engine& rng) {
@@ -106,9 +106,9 @@ Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, std::
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
-	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
+	MyCol SF = (FA_.col(0)+FB_.col(0))%D1X_.col(0)+(FA_.col(1)+FB_.col(1))%D1X_.col(1)+(FA_.col(2)+FB_.col(2))%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(FA_.col(dim)+FB_.col(dim)+SF%D1X_.col(dim));
 }
 
 Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, vector<double> p) {
@@ -143,9 +143,9 @@ Fiber::Fiber(int N, double L, double zeta, double E, double beta, Flow& U, vecto
 	calc_force();
 	calc_tension();
 	D1T_ = D1_*T_;
-	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
+	MyCol SF = (FA_.col(0)+FB_.col(0))%D1X_.col(0)+(FA_.col(1)+FB_.col(1))%D1X_.col(1)+(FA_.col(2)+FB_.col(2))%D1X_.col(2);
 	for(int dim=0; dim<3; dim++)
-	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
+	Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(FA_.col(dim)+FB_.col(dim)+SF%D1X_.col(dim));
 }
 
 void Fiber::alloc() {
@@ -161,7 +161,8 @@ void Fiber::alloc() {
 	D1T_.set_size(Ns_+1);
 	NormXi_.set_size(Ns_+1);
 	
-	F_.set_size(Ns_+1,3);
+	FA_.set_size(Ns_+1,3);
+	FB_.set_size(Ns_+1,3);
 	D1F_.set_size(Ns_+1,3);
 	
 	Uf_.set_size(Ns_+1,3);
@@ -267,7 +268,14 @@ void Fiber::setforcing2(vector<double> p, int k, double om, double alpha, int ep
     setforcing(p, 2.0*M_PI*k/L_, om, alpha, eps);
 }
 
-void Fiber::save(const std::string& filebase) const {
+void Fiber::save(const std::string& filebase, Flow& U) {
+	
+	// Update derivatives, fluid velocity and tension
+	diff();
+	interp_U(U);
+	calc_force();
+	calc_tension();
+	
 	if(filebase.substr(filebase.length()-3,3) == ".ff") {
 		char cname[512];
 		strcpy(cname, filebase.c_str());
@@ -343,11 +351,23 @@ void Fiber::save(const std::string& filebase) const {
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		if ((status = nc_put_var_double(ncid, id, &V[0])))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-		// Theta
+		// Fluid velocity
 		if ((status = nc_def_var(ncid, "Vel_fluid", NC_DOUBLE, 2, dimid, &id)))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
 		if ((status = nc_put_var_double(ncid, id, &Uf_[0])))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Tension
+		if ((status = nc_def_var(ncid, "Tension", NC_DOUBLE, 1, &dimid[1], &id)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_var_double(ncid, id, &T_[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		// Mismatch in elasticity terms
+		MyCol D = (E_*D4X_.col(0)-FB_.col(0))%(E_*D4X_.col(0)-FB_.col(0)) + (E_*D4X_.col(1)-FB_.col(1))%(E_*D4X_.col(1)-FB_.col(1)) + (E_*D4X_.col(2)-FB_.col(2))%(E_*D4X_.col(2)-FB_.col(2));
+		if ((status = nc_def_var(ncid, "Err2Elast", NC_DOUBLE, 1, &dimid[1], &id)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		if ((status = nc_put_var_double(ncid, id, &D[0])))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+		
 		// Close the netcdf file
 		if ((status = nc_close(ncid)))
 			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
@@ -369,7 +389,7 @@ void Fiber::calc_tension() {
 	Lap.diag() -= sum(D2X_.rows(1,Ns_-1)%D2X_.rows(1,Ns_-1),1);
 	
 	MyCol A = -zeta_*sum(D1X_.rows(1,Ns_-1)%D1Uf_.rows(1,Ns_-1),1);
-	A -= sum(D2X_.rows(1,Ns_-1)%F_.rows(1,Ns_-1),1) + 2.0*sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1);
+	A -= sum(D2X_.rows(1,Ns_-1)%(FA_.rows(1,Ns_-1)+FB_.rows(1,Ns_-1)),1) + 2.0*sum(D1X_.rows(1,Ns_-1)%D1F_.rows(1,Ns_-1),1);
 	A -= 7.0*E_*sum(D2X_.rows(1,Ns_-1)%D4X_.rows(1,Ns_-1),1) + 6.0*E_*sum(D3X_.rows(1,Ns_-1)%D3X_.rows(1,Ns_-1),1);
 	A += (zeta_*beta_)*(1-NormXi_.rows(1,Ns_-1));
 	MyCol  Ttmp;
@@ -394,10 +414,10 @@ void Fiber::evol(double dt, Flow& U) {
 	D1T_ = D1_*T_;
 	
 	MyMat G(Ns_+1,3);
-	MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1)+F_.col(2)%D1X_.col(2);
+	MyCol SF = (FA_.col(0)+FB_.col(0))%D1X_.col(0)+(FA_.col(1)+FB_.col(1))%D1X_.col(1)+(FA_.col(2)+FB_.col(2))%D1X_.col(2);
 	
 	for(int dim=0; dim<3; dim++)
-	G.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
+	G.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(FA_.col(dim)+FB_.col(dim)+SF%D1X_.col(dim));
 	
 	MyMat RHS = (4.0/3.0)*X_.rows(2,Ns_-2)-(1.0/3.0)*Xold_.rows(2,Ns_-2)+(2.0*dt_/3.0)*(2.0*G.rows(2,Ns_-2)-Gold_.rows(2,Ns_-2));
 	MyMat XXi = D1_*(2.0*X_-Xold_);
@@ -469,7 +489,8 @@ void Fiber::calc_force() {
 			C = cos(nu_*(double)is*ds_-om_*t_);
 			S = sin(nu_*(double)is*ds_-om_*t_);
 			for(int dim=0; dim<3; ++dim) {
-				F_(is,dim) = F0_*p_.at(dim) + B*(C*m[dim]+S*n[dim]) + A_*(S*m[dim]-C*n[dim]);
+				FA_(is,dim) = F0_*p_.at(dim) + A_*(S*m[dim]-C*n[dim]);
+				FB_(is,dim) = B*(C*m[dim]+S*n[dim]);
 				D1F_(is,dim) = nu_*( B*(-S*m[dim]+C*n[dim]) + A_*(C*m[dim]+S*n[dim]) );
 			}
 		}
@@ -477,7 +498,8 @@ void Fiber::calc_force() {
 	else {
 		for(int is=0; is<=Ns_; is++)
 		for(int dim=0; dim<3; ++dim) {
-			F_(is,dim) = 0.0;
+			FA_(is,dim) = 0.0;
+			FB_(is,dim) = 0.0;
 			D1F_(is,dim) = 0.0;
 		}
 	}

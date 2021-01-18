@@ -67,12 +67,12 @@ int main(int argc, char* argv[]) {
 			cout<<setprecision(4);
 			cout << showpoint;
 			cout<<"t = "<<t<<setw(10)<<"Lee = "<<Fib.endtoend()<<endl;
-			Fib.save(outdir+"fiber"+i2s(it)+".ff");
+			Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
 		}
 		Fib.evol(dt,U);
 		t += dt;
 		it++;
  	}
-	Fib.save(outdir+"fiber"+i2s(it)+".ff");
+	Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
 	return 1;
 }
