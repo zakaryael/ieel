@@ -8,7 +8,7 @@
 *.run.xml
 *.synctex.gz
 *~
-*/i-eel/i-eel.xcodeproj/project.xcworkspace/xcuserdata/*
+*/project.xcworkspace/xcuserdata/
 
 
 

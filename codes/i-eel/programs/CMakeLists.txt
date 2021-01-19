@@ -5,6 +5,7 @@
 set(program_APPS
   test_buckling
   test_swim
+  test_buckling2D
   )
 
 foreach (program ${program_APPS})

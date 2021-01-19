@@ -28,6 +28,11 @@
 		38363E1F256E4D5100542DEF /* Flow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flow.cpp; sourceTree = "<group>"; };
 		38363E20256E4D5100542DEF /* Flow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Flow.hpp; sourceTree = "<group>"; };
 		38363E21256E53E700542DEF /* test_buckling.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_buckling.cpp; sourceTree = "<group>"; };
+		38F5EC3825B75878000B3BA4 /* Fiber2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Fiber2D.cpp; sourceTree = "<group>"; };
+		38F5EC3925B75878000B3BA4 /* Fiber2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Fiber2D.hpp; sourceTree = "<group>"; };
+		38F5EC3A25B75EC7000B3BA4 /* Flow2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flow2D.cpp; sourceTree = "<group>"; };
+		38F5EC3B25B75EC7000B3BA4 /* Flow2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Flow2D.hpp; sourceTree = "<group>"; };
+		38F5EC3C25B760ED000B3BA4 /* test_buckling2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_buckling2D.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -50,6 +55,7 @@
 				38363E14256E34EE00542DEF /* CMakeLists.txt */,
 				38363E21256E53E700542DEF /* test_buckling.cpp */,
 				382196CC2572A9ED00AA1B03 /* test_swim.cpp */,
+				38F5EC3C25B760ED000B3BA4 /* test_buckling2D.cpp */,
 			);
 			path = programs;
 			sourceTree = "<group>";
@@ -62,6 +68,10 @@
 				38363E1E256E461A00542DEF /* CMakeLists.txt */,
 				38363E1F256E4D5100542DEF /* Flow.cpp */,
 				38363E20256E4D5100542DEF /* Flow.hpp */,
+				38F5EC3825B75878000B3BA4 /* Fiber2D.cpp */,
+				38F5EC3925B75878000B3BA4 /* Fiber2D.hpp */,
+				38F5EC3A25B75EC7000B3BA4 /* Flow2D.cpp */,
+				38F5EC3B25B75EC7000B3BA4 /* Flow2D.hpp */,
 			);
 			path = src;
 			sourceTree = "<group>";

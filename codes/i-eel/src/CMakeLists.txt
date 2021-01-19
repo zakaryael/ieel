@@ -7,12 +7,16 @@ set(
     ieel_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Fiber.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Flow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Fiber2D.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Flow2D.cpp
 )
 
 set(
     ieel_HEADERS
     ${CMAKE_CURRENT_SOURCE_DIR}/Fiber.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Flow.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Fiber2D.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Flow2D.hpp
 )
 
 # Define the target with appropriate dependencies
