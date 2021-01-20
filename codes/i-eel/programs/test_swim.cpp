@@ -21,9 +21,9 @@ int main(int argc, char* argv[]) {
 	// Read the command-line options
 	args.section("Program options");
 	const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
-	const double L = args.getreal("-L", "--length", 1.0, "fiber length");
-	const double zeta = args.getreal("-z", "--zeta", 1e6, "friction coefficient");
-	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
+	const double L = args.getreal("-L", "--length", 2.0*M_PI, "fiber length");
+	const double zeta = args.getreal("-z", "--zeta", 1, "friction coefficient");
+	const double E = args.getreal("-E", "--EI", 1e-3, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
 	const double Tmax = args.getreal("-T", "--time", 50.0, "integration time");
 	const int Nout = args.getint("-nout", "--step_out", 200, "output period (in number of timesteps)");
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
 	args.save(outdir);
 	
 	// fluid flow set to 0
-	Flow U(0);
+	Flow U(1,1,1);
 	
 	// define the fiber
 	cout<<endl<<"------------------------------------------------"<<endl;
@@ -54,6 +54,9 @@ int main(int argc, char* argv[]) {
 	Fiber Fib(Ns,L,zeta,E,beta,U,p);
 	
 	// set the forcing
+	p.at(0) = 1/sqrt(3);
+	p.at(1) = 1/sqrt(3);
+	p.at(2) = 1/sqrt(3);
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"k="<<k<<"\tom="<<om<<"\talpha="<<alpha<<endl;
 	cout<<"in the direction ("<<p.at(0)<<","<<p.at(1)<<","<<p.at(2)<<")"<<endl;
@@ -70,15 +73,21 @@ int main(int argc, char* argv[]) {
 	int it = 0;
 	double t = 0;
 	
-	double x0,x;
+	double x0, x, y0, y, z, z0;
 	x0 = Fib.getcenter(0);
+	y0 = Fib.getcenter(1);
+	z0 = Fib.getcenter(2);
 	while(it<nstep) {
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
 			x = Fib.getcenter(0);
-			cout<<"t = "<<t<<setw(10)<<"Vx = "<<(x-x0)/(Nout*dt)<<endl;
+			y = Fib.getcenter(1);
+			z = Fib.getcenter(2);
+			cout<<"t = "<<t<<setw(10)<<"V = "<<-(p.at(0)*(x-x0)+p.at(1)*(y-y0)+p.at(2)*(z-z0))/(Nout*dt)<<endl;
 			x0 = x;
+			y0 = y;
+			z0 = z;
 			Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
 		}
 		

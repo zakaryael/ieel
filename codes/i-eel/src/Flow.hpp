@@ -16,11 +16,13 @@ class Flow {
 public:
 	Flow() {type_ = Null; };
 	Flow(double sig);
+	Flow(double A, double B, double C);
 	double velocity(double x, double y, double z, int dim);
 	double gradient(double x, double y, double z, int dim);
 private:
 	flowtype type_ = Null;
 	double *shear_; // contains the mean gradient \partial_j u_i in element 3*i+j
+	double A_, B_, C_;
 };
 
 #endif /* Flow_hpp */

@@ -1,7 +1,7 @@
 clear;
 
 % Path to the directory where the data has been stored
-DIRNAME = '../../../../fiberruns/data/';
+DIRNAME = '../../../../fiberruns/cell_z1e3/';
 
 IT = 0:200:50000;
 dt = 5e-4;
@@ -12,9 +12,10 @@ fname = [DIRNAME sprintf('fiber%d.nc',IT(1))];
 I = ncinfo(fname);
 Ns = I.Dimensions(2).Length;
 Data = ncread(fname,'Pos');
-hpl = plot(Data(:,1),Data(:,2),'.-');
-xlim([-2 2])
-ylim([-2 2])
+hpl = plot(Data(:,1),Data(:,2),'-','Linewidth',2);
+xlim([-1 5])
+%ylim([-1 1])
+
 axis equal;
 %%
 V = zeros(length(IT)-1,1);
