@@ -138,7 +138,7 @@ Fiber2D::Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U,
     interp_U(U);
     calc_force();
     calc_tension();
-    D1T_ = D1_*T_;
+	D1T_ = D1_*T_;
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     for(int dim=0; dim<2; dim++)
     Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
@@ -218,7 +218,6 @@ void Fiber2D::alloc() {
     Op4_(Ns_-5,Ns_-4) = -16.0/11.0; Op4_(Ns_-5,Ns_-5) = 43.0/11.0; Op4_(Ns_-5,Ns_-6) = -38.0/11.0;
     Op4_(Ns_-4,Ns_-4) = 2.0/11.0; Op4_(Ns_-4,Ns_-5) = -4.0/11.0; Op4_(Ns_-4,Ns_-6) = 2.0/11.0;
     Op4_ /= ds_*ds_*ds_*ds_;
-    
 }
 
 void Fiber2D::setforcing(vector<double> p, int k, double om, double a) {
@@ -366,7 +365,7 @@ void Fiber2D::evol(double dt, Flow2D& U) {
     calc_tension();
     D1T_ = D1_*T_;
     
-    MyMat G(Ns_+1,3);
+    MyMat G(Ns_+1,2);
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     
     for(int dim=0; dim<2; dim++)
@@ -408,11 +407,11 @@ void Fiber2D::evol(double dt, Flow2D& U) {
 
 void Fiber2D::interp_U(Flow2D& U) {
     for(int is=0; is<=Ns_; is++) {
-        for(int dim=0; dim<3; dim++) {
+        for(int dim=0; dim<2; dim++) {
             Uf_(is,dim) = U.velocity(X_(is,0),X_(is,1),dim);
             D1Uf_(is,dim) = 0;
-            for(int dd=0; dd<3; dd++)
-            D1Uf_(is,dim) += D1X_(is,dd)*U.gradient(X_(is,0),X_(is,1),2*dim+dd);
+            for(int dd=0; dd<2; dd++)
+			D1Uf_(is,dim) += D1X_(is,dd)*U.gradient(X_(is,0),X_(is,1),2*dim+dd);
         }
     }
 }
@@ -426,7 +425,7 @@ void Fiber2D::calc_force() {
         for(int is=0; is<=Ns_; is++) {
             S = sin(nu_*(double)is*ds_-om_*t_);
             C = cos(nu_*(double)is*ds_-om_*t_);
-            for(int dim=0; dim<3; ++dim) {
+            for(int dim=0; dim<2; ++dim) {
                 F_(is,dim) = A_*S*n[dim];
                 D1F_(is,dim) = nu_*A_*C*n[dim];
             }
@@ -434,7 +433,7 @@ void Fiber2D::calc_force() {
     }
     else {
         for(int is=0; is<=Ns_; is++)
-        for(int dim=0; dim<3; ++dim) {
+        for(int dim=0; dim<2; ++dim) {
             F_(is,dim) = 0.0;
             D1F_(is,dim) = 0.0;
         }

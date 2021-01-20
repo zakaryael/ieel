@@ -45,8 +45,8 @@ int main(int argc, char* argv[]) {
     // define the fiber
     cout<<endl<<"------------------------------------------------"<<endl;
     cout<<"Generating a straight fiber of length "<<L<<endl;
-    cout<<"with fric. coeff. "<<zeta<<" and Young modulus"<<E<<endl;
-    vector<double> p(3);
+    cout<<"with fric. coeff. "<<zeta<<" and Young modulus "<<E<<endl;
+    vector<double> p(2);
     p.at(0) = sqrt(1-dev*dev);
     p.at(1) = -dev;
     cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
@@ -65,12 +65,12 @@ int main(int argc, char* argv[]) {
             cout<<setprecision(4);
             cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"Lee = "<<Fib.endtoend()<<endl;
-            Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
+            Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }
         Fib.evol(dt,U);
         t += dt;
         it++;
      }
-    Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
+    Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
     return 1;
 }
