@@ -10,13 +10,15 @@
 
 #include "basics/Utilities.h"
 
-enum flow2Dtype { Null, Shear, ABC };
+enum flow2Dtype { Null, Shear, Cellular };
 
 class Flow2D {
 public:
     Flow2D() {type_ = Null; };
-    Flow2D(double sig);
-    double velocity(double x, double y, int dim);
+	Flow2D(flow2Dtype type);
+	Flow2D(double sig);
+	void initshear(double sig);
+	double velocity(double x, double y, int dim);
     double gradient(double x, double y, int dim);
 private:
     flow2Dtype type_ = Null;

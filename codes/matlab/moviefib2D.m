@@ -13,9 +13,9 @@ I = ncinfo(fname);
 Ns = I.Dimensions(2).Length;
 Data = ncread(fname,'Pos');
 hpl = plot(Data(:,1),Data(:,2),'.-');
+xlim([-2 2])
+ylim([-2 2])
 axis equal;
-%xlim([-3 1])
-ylim([-0.25 0.25])
 %%
 V = zeros(length(IT)-1,1);
 L = zeros(length(IT),1);
@@ -25,8 +25,6 @@ for it=IT(2:end)
     fname = [DIRNAME sprintf('fiber%d.nc',it)];
     Data = ncread(fname,'Pos');
     set(hpl,'XData',Data(:,1),'YData',Data(:,2))
-    ylim([-0.25 0.25])
-    zlim([-0.25 0.25])
     L(cnt+1) = sqrt(sum((Data(end,:)-Data(1,:)).^2));
     Data = ncread(fname,'Vel');
     V(cnt) = mean(Data(:,1));
