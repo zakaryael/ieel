@@ -25,13 +25,14 @@ int main(int argc, char* argv[]) {
 	const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
 	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-	const double Tmax = args.getreal("-T", "--time", 50.0, "integration time");
+	const double Tmax = args.getreal("-T", "--time",200.0, "integration time");
 	const int Nout = args.getint("-nout", "--step_out", 200, "output period (in number of timesteps)");
-	const double dt = args.getreal("-dt", "--timestep", 5e-4, "time step");
+	const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
-	const int k = args.getint("-k", "--wavenumber", 5, "Forcing wavenumber");
-	const double om = args.getreal("-om", "--frequency", 5.0, "Forcing frequency");
-	const double alpha = args.getreal("-alpha", "--alpha", 0.5, "Force amplitude");
+	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
+	const double om = args.getreal("-om", "--frequency", 2, "Forcing frequency");
+	const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
+	const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
 	
 	args.check();
 	mkdir(outdir);
@@ -39,7 +40,7 @@ int main(int argc, char* argv[]) {
 	
 	// fluid flow set to 0
 	Flow2D U(Cellular);
-	
+	U.initcellular(u);
 	// define the fiber
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"Generating a straight fiber of length "<<L<<endl;
@@ -54,7 +55,7 @@ int main(int argc, char* argv[]) {
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"k="<<k<<"\tom="<<om<<"\talpha="<<alpha<<endl;
 	cout<<"in the direction ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
-	Fib.setforcing(p, k, om, alpha);
+	Fib.setforcing(p, k, om, alpha*om/(2.0*M_PI*(double)k/L));
 	
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;

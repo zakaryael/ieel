@@ -18,11 +18,13 @@ public:
 	Flow2D(flow2Dtype type);
 	Flow2D(double sig);
 	void initshear(double sig);
+	void initcellular(double u);
 	double velocity(double x, double y, int dim);
     double gradient(double x, double y, int dim);
 private:
     flow2Dtype type_ = Null;
     double *shear_; // contains the mean gradient \partial_j u_i in element 2*i+j
+	double u_;
 };
 
 
