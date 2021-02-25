@@ -27,11 +27,11 @@ int main(int argc, char* argv[]) {
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
 	const double Tmax = args.getreal("-T", "--time", 50.0, "integration time");
 	const int Nout = args.getint("-nout", "--step_out", 200, "output period (in number of timesteps)");
-	const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
+	const double dt = args.getreal("-dt", "--timestep", 5e-4, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
-	const int k = args.getint("-k", "--wavenumber", 5, "Forcing wavenumber");
-	const double om = args.getreal("-om", "--frequency", 5.0, "Forcing frequency");
-	const double alpha = args.getreal("-alpha", "--alpha", 0.5, "Force amplitude");
+	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
+	const double om = args.getreal("-om", "--frequency", 2.0, "Forcing frequency");
+	const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
 	
 	args.check();
 	mkdir(outdir);
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 	cout<<"Generating a straight fiber of length "<<L<<endl;
 	cout<<"with fric. coeff. "<<zeta<<" and Young modulus"<<E<<endl;
 	vector<double> p(2);
-	p.at(0) = 1;
+	p.at(0) = -1;
 	p.at(1) = 0;
 	cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
 	Fiber2D Fib(Ns,L,zeta,E,beta,U,p);
@@ -54,8 +54,23 @@ int main(int argc, char* argv[]) {
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"k="<<k<<"\tom="<<om<<"\talpha="<<alpha<<endl;
 	cout<<"in the direction ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
-	Fib.setforcing(p, k, om, alpha);
-	
+    Fib.setforcing(k, om);
+    MyMat Q;
+    Q.set_size(12,2);
+    for(int i=0; i<12; ++i) {
+        for(int j=0; j<2; ++j)
+            Q(i,j) = 0;
+    }
+    // Naive strategy: swim at full speed
+    for(int i=0; i<12; ++i)
+        Q(i,1) = 10;
+    MyCol Ampl;
+    double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
+    Ampl.set_size(1);
+    Ampl(0) = a0;
+
+    Fib.initQlearning(Q,0,0,0,Ampl,U);
+    
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;
 	int nstep = round(Tmax/dt);
@@ -66,20 +81,25 @@ int main(int argc, char* argv[]) {
 	
 	double x0,x;
 	x0 = Fib.getcenter(0);
+    
+    ofstream outputfile;
+    outputfile.open(outdir+"vel_"+r2s(alpha)+".txt");
+    
 	while(it<nstep) {
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
 			x = Fib.getcenter(0);
-			cout<<"t = "<<t<<setw(10)<<"Vx = "<<(x-x0)/(Nout*dt)<<endl;
-			x0 = x;
-			Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
+			cout<<"t = "<<t<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<endl;
+            outputfile<<t<<"\t"<<Fib.getvelocity(0)<<endl;
+            x0 = x;
+			//Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
 		}
-		
 		Fib.evol(dt,U);
 		t += dt;
 		it++;
 	}
-	Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
-	return 1;
+	Fib.save(outdir+"fiber_"+r2s(alpha)+".nc",U);
+    outputfile.close();
+    return 1;
 }
