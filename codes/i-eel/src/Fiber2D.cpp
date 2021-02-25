@@ -220,13 +220,12 @@ void Fiber2D::alloc() {
     Op4_ /= ds_*ds_*ds_*ds_;
 }
 
-void Fiber2D::setforcing(vector<double> p, int k, double om, double a) {
-    if(p.size() != 2)
-        ErrorMsg("The direction of swim should be a vector of dimension 2");
-    p_ = p;
+void Fiber2D::setforcing(int k, double om) {
+    p_.resize(2);
+    p_.at(0) = 0;
+    p_.at(1) = 1;
     nu_ = 2.0*M_PI*(double)k/L_;
     om_ = om;
-    A_ = zeta_*a;
 }
 
 void Fiber2D::save(const std::string& filebase, Flow2D& U) {
@@ -319,6 +318,28 @@ void Fiber2D::save(const std::string& filebase, Flow2D& U) {
             ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
         if ((status = nc_put_var_double(ncid, id, &T_[0])))
             ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        // Q-table
+        if ((status = nc_def_dim(ncid, "nstate", nstate_, &dimid[0])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        if ((status = nc_def_dim(ncid, "nact", naction_, &dimid[1])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        if ((status = nc_def_var(ncid, "Qtable", NC_DOUBLE, 2, dimid, &id)))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        if ((status = nc_put_var_double(ncid, id, &Q_[0])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        int val[1];
+        if ((status = nc_def_dim(ncid, "one", 1, &dimid[0])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        if ((status = nc_def_var(ncid, "state", NC_INT, 1, dimid, &id)))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        val[0] = state_;
+        if ((status = nc_put_var_int(ncid, id, &val[0])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        if ((status = nc_def_var(ncid, "action", NC_INT, 1, dimid, &id)))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+        val[0] = action_;
+        if ((status = nc_put_var_int(ncid, id, &val[0])))
+            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
         
         // Close the netcdf file
         if ((status = nc_close(ncid)))
@@ -402,7 +423,29 @@ void Fiber2D::evol(double dt, Flow2D& U) {
     X_.row(Ns_-1) = (28.0/11.0)*Xnew.row(Ns_-4)-(23.0/11.0)*Xnew.row(Ns_-5)+(6.0/11.0)*Xnew.row(Ns_-6);
     X_.row(Ns_)   = (48.0/11.0)*Xnew.row(Ns_-4)-(52.0/11.0)*Xnew.row(Ns_-5)+(15.0/11.0)*Xnew.row(Ns_-6);
     
-    t_ += dt;
+    t_ += dt_;
+}
+
+
+void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U){
+    if(Q.n_cols != 2*Ampl.n_rows)
+        ErrorMsg("initQlearning: Q and Ampl are incompatible");
+    Q_ = Q;
+    nstate_ = Q.n_rows;
+    naction_ = Q.n_cols;
+    gamma_ = gamma;
+    learnrate_ = learnrate;
+    u0_ = u0;
+    Ampl_ = Ampl;
+    state_update(U);
+}
+
+
+void Fiber2D::Qupdate(Flow2D& U) {
+    int stateold = state_;
+    int actold = action_;
+    double qmax = state_update(U);
+    Q_(stateold,actold) = (1.0-learnrate_)*Q_(stateold,actold)+learnrate_*(reward()+gamma_*qmax);
 }
 
 void Fiber2D::interp_U(Flow2D& U) {
@@ -438,4 +481,60 @@ void Fiber2D::calc_force() {
             D1F_(is,dim) = 0.0;
         }
     }
+}
+
+double Fiber2D::calc_wind(Flow2D& U) {
+    int iwind = 0;
+    double wind = U.velocity(X_(0,0),X_(0,1),0);
+    if(wind>-u0_) {
+        if(wind<u0_)
+            iwind = 1;
+        else
+            iwind = 2;
+    }
+    return iwind;
+}
+
+int Fiber2D::calc_orientation(){
+    int iorient = 0;
+    if(X_(0,0)-getcenter(0)>0)
+        iorient = 1;
+    return iorient;
+}
+
+int Fiber2D::calc_buckle(){
+    int test=0;
+    double dist;
+    double d2max = 0.75*ds_;
+    d2max = d2max*d2max;
+    for(int i=0; i<Ns_ and test==0; ++i){
+        for (int j=i+1; j<Ns_+1 and test==0; ++j) {
+            dist = (X_(j,0)-X_(i,0))*(X_(j,0)-X_(i,0)) + (X_(j,1)-X_(i,1))*(X_(j,1)-X_(i,1));
+            if (dist < d2max)
+                test = 1;
+        }
+    }
+    return test;
+}
+
+double Fiber2D::state_update(Flow2D& U) {
+    // Compute the new state
+    state_ = calc_wind(U)+3*(calc_buckle()+2*calc_orientation());
+    // Maximize Q and find the action
+    double qmax = -10;
+    for(int ia=0; ia<naction_; ++ia) {
+        if(Q_(state_,ia) >= qmax) {
+            qmax = Q_(state_,ia);
+            action_ = ia;
+        }
+    }
+    // Update the forcing parameters depending on the action
+    if(action_<Ampl_.n_rows) {
+        p_.at(0)=0; p_.at(1)=1;
+    }
+    else {
+        p_.at(0)=1; p_.at(1)=0;
+    }
+    A_ = Ampl_(action_%Ampl_.n_rows);
+    return qmax;
 }
