@@ -7,6 +7,39 @@
 
 #include "Fiber2D.hpp"
 
+MyMat readQ(const std::string& filebase) {
+	if(filebase.substr(filebase.length()-3,3) != ".nc")
+		ErrorMsg("readQ: wrong file type");
+	int status, ncid;
+	if ((status = nc_open(filebase.c_str(), NC_NETCDF4, &ncid)))
+			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	size_t ns, na;
+	int tmpi;
+	if ((status = nc_inq_dimid(ncid, "nstate", &tmpi)))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	if ((status = nc_inq_dimlen(ncid, tmpi, &ns)))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	if ((status = nc_inq_dimid(ncid, "nact", &tmpi)))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	if ((status = nc_inq_dimlen(ncid, tmpi, &na)))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	MyMat Q;
+	Q.set_size(ns,na);
+	if ((status = nc_inq_varid(ncid, "Qtable", &tmpi)))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	if ((status = nc_get_var_double(ncid, tmpi, &Q[0])))
+		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
+	cout<<"Initial Q"<<endl;
+	for(size_t is=0; is<ns; ++is) {
+		for(size_t ia=0; ia<na; ++ia) {
+			cout<<Q(is,ia)<<" ";
+		}
+		cout<<endl;
+	}
+	return Q;
+};
+
+
 Fiber2D::Fiber2D() {
 }
 

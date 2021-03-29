@@ -37,8 +37,10 @@ int main(int argc, char* argv[]) {
     const int Nlearning = args.getint("-nl", "--step_learning", 200, "learning period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.1, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
-    const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
-    
+	const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
+	const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
+	const string inQ = args.getstr("-Qinit", "--initialQ", "", "input file from which Q is read");
+	
 	args.check();
 	mkdir(outdir);
 	args.save(outdir);
@@ -75,15 +77,21 @@ int main(int argc, char* argv[]) {
 	Fib.setforcing(k, om);
     MyMat Q;
     Q.set_size(12,8);
-    for (int i = 0; i <12; i++) {
-        for (int j = 0; j<8; j++)
-            Q(i,j) = 0.25;
-    }
-    for (int j = 5; j<8; j++) {
-        Q(2,j) = 0.1;
-        Q(5,j) = 0.1;
-    }
-
+	if(strcmp(inQ.c_str(),"")==0) {
+		cout<<"Start Q from scratch"<<endl;
+		for (int i = 0; i <12; i++) {
+			for (int j = 0; j<8; j++)
+			Q(i,j) = qinit;
+		}
+		for (int j = 5; j<8; j++) {
+			Q(2,j) = 0.4*qinit;
+			Q(5,j) = 0.4*qinit;
+		}
+	}
+	else {
+		cout<<"Restart Q from file "<<inQ<<endl;
+		Q = readQ(inQ);
+	}
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
     Ampl.set_size(4);
@@ -109,7 +117,7 @@ int main(int argc, char* argv[]) {
             cout<<setprecision(4);
             cout << showpoint;
             x = Fib.getcenter(0);
-            cout<<"t = "<<t<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<" Action: "<< Fib.getaction()<<" State: "<< Fib.getstate()<<endl;
+            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<" Action: "<< Fib.getaction()<<" State: "<< Fib.getstate()<<endl;
             x0 = x;
             Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }

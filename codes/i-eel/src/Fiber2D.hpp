@@ -18,6 +18,8 @@ typedef Mat<double> MyMat;
 typedef Col<double> MyCol;
 typedef SpMat<double> MySpMat;
 
+MyMat readQ(const std::string& filebase);
+
 class Fiber2D {
 public:
     // Calss initialisation
