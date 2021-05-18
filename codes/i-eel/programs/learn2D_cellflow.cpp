@@ -26,8 +26,8 @@ int main(int argc, char* argv[]) {
 	const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
 	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-	const double Tmax = args.getreal("-T", "--time",600.0, "integration time");
-	const int Nout = args.getint("-nout", "--step_out", 400, "output period (in number of timesteps)");
+	const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
+	const int Nout = args.getint("-nout", "--step_out", 2000, "output period (in number of timesteps)");
     const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
 	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
@@ -35,7 +35,7 @@ int main(int argc, char* argv[]) {
 	const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
 	const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
     const int Nlearning = args.getint("-nl", "--step_learning", 200, "learning period (in number of timesteps)");
-    const double gamma = args.getreal("-gamma", "--discountrate", 0.1, "Discount rate");
+    const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
 	const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
 	const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
