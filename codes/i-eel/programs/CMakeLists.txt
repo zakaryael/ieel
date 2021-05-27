@@ -8,6 +8,7 @@ set(program_APPS
   test_buckling2D
   test_swim2D
   swim2D_cellflow
+  learn2D_noflow
   learn2D_cellflow
   swim2D_learned_cellflow
   )

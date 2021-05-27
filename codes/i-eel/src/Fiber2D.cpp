@@ -77,8 +77,8 @@ void Fiber2D::read(int N, double L, double zeta, double E, double beta, Flow2D& 
     strcpy(cname, filebase.c_str());
     FILE *fin = fopen(cname,"r");
     for(int is=0; is<=Ns_; is++) {
-        double xtmp[3];
-        if(fread(&xtmp, sizeof(double), 3, fin)==0) {
+        double xtmp[2];
+        if(fread(&xtmp, sizeof(double), 2, fin)==0) {
             cerr<<"Error in reading "<<filebase<<endl;
             exit(-1);
         }
@@ -556,7 +556,7 @@ double Fiber2D::state_update(Flow2D& U) {
     // Maximize Q and find the action
     double qmax = -10;
     for(int ia=0; ia<naction_; ++ia) {
-        if(Q_(state_,ia) >= qmax) {
+        if(Q_(state_,ia) > qmax) {
             qmax = Q_(state_,ia);
             action_ = ia;
         }
