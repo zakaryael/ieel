@@ -478,7 +478,8 @@ void Fiber2D::Qupdate(Flow2D& U) {
     int stateold = state_;
     int actold = action_;
     double qmax = state_update(U);
-    Q_(stateold,actold) = (1.0-learnrate_)*Q_(stateold,actold)+learnrate_*(reward()+gamma_*qmax);
+    reward();
+    Q_(stateold,actold) = (1.0-learnrate_)*Q_(stateold,actold)+learnrate_*(rew_+gamma_*qmax);
 }
 
 void Fiber2D::interp_U(Flow2D& U) {

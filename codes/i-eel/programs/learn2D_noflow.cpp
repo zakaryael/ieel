@@ -98,7 +98,7 @@ int main(int argc, char* argv[]) {
             cout<<setprecision(4);
             cout << showpoint;
             x = Fib.getcenter(0);
-            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<" Action: "<< Fib.getaction()<<" State: "<< Fib.getstate()<<endl;
+            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.printreward()<<" Action: "<< Fib.getaction()<<" State: "<< Fib.getstate()<<endl;
             x0 = x;
             Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }

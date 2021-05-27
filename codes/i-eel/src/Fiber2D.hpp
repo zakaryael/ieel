@@ -43,26 +43,28 @@ public:
     // update the Q matrix
     void Qupdate(Flow2D& U);
     // define the reward
-    inline double reward(){
+    inline void reward(){
         double Xcg = getcenter(0);
-        double r = Xcg-Xcgold_;
+        rew_ = Xcg-Xcgold_;
         Xcgold_ = Xcg;
-        return r;
-    }
+    };
+    inline double printreward(){
+        return rew_;
+    };
     // compute the position of the center of mass
     inline double getcenter(int dim) {
         double x = 0;
         for(int is=0; is<=Ns_; ++is)
         x += X_(is,dim);
         return x/((double)(Ns_+1));
-    }
+    };
     // compute the mean translational velocity
     inline double getvelocity(int dim) {
         double v = 0;
         for(int is=0; is<=Ns_; ++is)
         v += X_(is,dim)-Xold_(is,dim);
         return v/((double)(Ns_+1))/dt_;
-    }
+    };
     // compute the end-to-end length
     inline double endtoend() const {
         return sqrt((X_(Ns_,0)-X_(0,0))*(X_(Ns_,0)-X_(0,0)) + (X_(Ns_,1)-X_(0,1))*(X_(Ns_,1)-X_(0,1)) );
@@ -80,7 +82,7 @@ public:
     void saveascii(const std::string& filebase) {
         X_.save(filebase+"_X.dat",raw_ascii);
         T_.save(filebase+"_T.dat",raw_ascii);
-    }
+    };
     // return internal variables
     inline int getaction() const { return action_; };
     inline int getstate() const { return state_; };
@@ -119,6 +121,7 @@ private:
     int naction_; // number of actions
     int state_;
     int action_;
+    double rew_;
     double gamma_; // discount rate
     double learnrate_; // learning rate
     double u0_; // discretization of the wind
