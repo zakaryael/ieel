@@ -7,6 +7,13 @@
 
 #include "Fiber2D.hpp"
 
+time_t tt;
+std::default_random_engine generator;
+
+void set_seed(void){
+    generator.seed((unsigned) time(&tt));
+}
+
 MyMat readQ(const std::string& filebase) {
 	if(filebase.substr(filebase.length()-3,3) != ".nc")
 		ErrorMsg("readQ: wrong file type");
@@ -562,6 +569,21 @@ double Fiber2D::state_update(Flow2D& U) {
             action_ = ia;
         }
     }
+    
+    
+    
+    std::uniform_real_distribution<double> uniform(0.0,1.0);
+    
+    float v = uniform(generator);
+    float epsilon = epsilon_;//0.1; 
+
+    // std::cout << "\n the random picked number is: "<< v<< endl;
+    
+
+
+    if(v < epsilon) // if v < epsilon pick the action at random
+        action_ = rand() % 8;
+    
     // Update the forcing parameters depending on the action
     if(action_<Ampl_.n_rows) {
         p_.at(0)=0; p_.at(1)=1;

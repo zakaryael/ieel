@@ -93,7 +93,10 @@ int main(int argc, char* argv[]) {
     
     double x0,x;
     x0 = Fib.getcenter(0);
+    //generator.seed((unsigned) time(&tt));
+    set_seed();
     while(it<nstep) {
+        //generator.seed((unsigned) time(&tt));
         if((it % Nout)==0) {
             cout<<setprecision(4);
             cout << showpoint;
@@ -106,6 +109,7 @@ int main(int argc, char* argv[]) {
         t += dt;
         it++;
         if((it % Nlearning)==0)
+            Fib.epsilon_ = Fib.epsilon_ / it;
             Fib.Qupdate(U);
     }
     

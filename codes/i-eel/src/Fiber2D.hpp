@@ -19,7 +19,7 @@ typedef Col<double> MyCol;
 typedef SpMat<double> MySpMat;
 
 MyMat readQ(const std::string& filebase);
-
+void set_seed(void);
 class Fiber2D {
 public:
     // Calss initialisation
@@ -88,7 +88,7 @@ public:
     inline int getstate() const { return state_; };
     inline double L() const { return L_; };
     inline int N() const { return Ns_; };
-
+    float epsilon_ = 0.1;  // exploration rate
 private:
     // Time
     double t_ = 0.0;
@@ -127,6 +127,7 @@ private:
     double u0_; // discretization of the wind
     MyCol Ampl_; // table containing the discrete values of the forcing amplitude
     double Xcgold_ = 0; // needed to compute the reward
+    
     
     // Derivative matrices
     MySpMat D1_, D2_, D3_, D4_, LapDirich_, Op4_;
