@@ -479,6 +479,7 @@ void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, 
     Ampl_ = Ampl;
     state_update(U);
     epsilon_ = epsil;
+    set_seed();
 }
 
 
@@ -572,16 +573,16 @@ double Fiber2D::state_update(Flow2D& U) {
     }
     
     std::uniform_real_distribution<double> uniform(0.0,1.0);
-    float v = uniform(generator);
-    float epsilon = epsilon_;//0.1; 
-
+    std::uniform_int_distribution<> int_unif(0, 2*Ampl_.n_rows-1);
+    float v = uniform(generator_);
+    int action_new;
     // std::cout << "\n the random picked number is: "<< v<< endl;
-    
-
-
-    if(v < epsilon_) // if v < epsilon pick the action at random
-        action_ = rand() % 8;
-    
+    if(v < epsilon_) {// if v < epsilon pick the action at random
+        action_new = int_unif(generator_);
+        while(action_new==ia)
+            action_new = int_unif(generator_);
+        action_ = action_new;
+    }
     // Update the forcing parameters depending on the action
     if(action_<Ampl_.n_rows) {
         p_.at(0)=0; p_.at(1)=1;
