@@ -7,12 +7,6 @@
 
 #include "Fiber2D.hpp"
 
-time_t tt;
-std::default_random_engine generator;
-
-void set_seed(void){
-    generator.seed((unsigned) time(&tt));
-}
 
 MyMat readQ(const std::string& filebase) {
 	if(filebase.substr(filebase.length()-3,3) != ".nc")
@@ -183,6 +177,12 @@ Fiber2D::Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U,
     for(int dim=0; dim<2; dim++)
     Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 }
+
+void Fiber2D::set_seed(void){
+    time_t tt;
+    generator_.seed((unsigned) time(&tt));
+}
+
 
 void Fiber2D::alloc() {
     X_.set_size(Ns_+1,2);
