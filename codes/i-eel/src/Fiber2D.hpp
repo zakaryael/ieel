@@ -39,7 +39,7 @@ public:
     // time evolution over a time step dt
     void evol(double dt, Flow2D& U);
     // initialise Q learning with given array
-    void initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U);
+    void initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U, double epsil=0.0);
     // update the Q matrix
     void Qupdate(Flow2D& U);
     // define the reward
@@ -88,7 +88,6 @@ public:
     inline int getstate() const { return state_; };
     inline double L() const { return L_; };
     inline int N() const { return Ns_; };
-    float epsilon_ = 0.1;  // exploration rate
 private:
     // Time
     double t_ = 0.0;
@@ -125,6 +124,7 @@ private:
     double gamma_; // discount rate
     double learnrate_; // learning rate
     double u0_; // discretization of the wind
+    float epsilon_ = 0.0;  // exploration rate
     MyCol Ampl_; // table containing the discrete values of the forcing amplitude
     double Xcgold_ = 0; // needed to compute the reward
     
