@@ -1,9 +1,9 @@
 %clear;
 %Store = [];
 % Path to the directory where the data has been stored
-DIRNAME = '../../../../fiberruns/test_cell/';
+DIRNAME = '../../../runs/test1/';
 
-IT = 0:200:200000;
+IT = 0:2000:2000000;
 
 figure(1), clf
 

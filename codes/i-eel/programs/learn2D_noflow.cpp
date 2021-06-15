@@ -36,6 +36,7 @@ int main(int argc, char* argv[]) {
     const int Nlearning = args.getint("-nl", "--step_learning", 200, "learning period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
+    const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
     const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
     const string inQ = args.getstr("-Qinit", "--initialQ", "", "input file from which Q is read");
     
@@ -81,7 +82,7 @@ int main(int argc, char* argv[]) {
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
 
-    Fib.initQlearning(Q,gamma,learnrate,1.0,Ampl,U);
+    Fib.initQlearning(Q,gamma,learnrate,1.0,Ampl,U,epsil);
     
     // time loop
     cout<<endl<<"------------------------------------------------"<<endl;
@@ -94,7 +95,7 @@ int main(int argc, char* argv[]) {
     double x0,x;
     x0 = Fib.getcenter(0);
     //generator.seed((unsigned) time(&tt));
-    set_seed();
+    //set_seed();
     while(it<nstep) {
         //generator.seed((unsigned) time(&tt));
         if((it % Nout)==0) {
@@ -109,7 +110,7 @@ int main(int argc, char* argv[]) {
         t += dt;
         it++;
         if((it % Nlearning)==0)
-            Fib.epsilon_ = Fib.epsilon_ / it;
+            Fib.setepsilon(Fib.epsilon()/(double)it);
             Fib.Qupdate(U);
     }
     

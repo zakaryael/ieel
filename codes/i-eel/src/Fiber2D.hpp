@@ -89,6 +89,8 @@ public:
     inline int getstate() const { return state_; };
     inline double L() const { return L_; };
     inline int N() const { return Ns_; };
+    inline double epsilon() const { return epsilon_; };
+    inline void setepsilon(double epsil) { epsilon_ = epsil; };
 private:
     // Time
     double t_ = 0.0;

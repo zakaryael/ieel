@@ -579,7 +579,7 @@ double Fiber2D::state_update(Flow2D& U) {
     // std::cout << "\n the random picked number is: "<< v<< endl;
     if(v < epsilon_) {// if v < epsilon pick the action at random
         action_new = int_unif(generator_);
-        while(action_new==ia)
+        while(action_new==action_)
             action_new = int_unif(generator_);
         action_ = action_new;
     }
