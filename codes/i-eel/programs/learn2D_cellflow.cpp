@@ -37,6 +37,7 @@ int main(int argc, char* argv[]) {
     const int Nlearning = args.getint("-nl", "--step_learning", 200, "learning period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
+	const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
 	const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
 	const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
 	const string inQ = args.getstr("-Qinit", "--initialQ", "", "input file from which Q is read");
@@ -100,7 +101,7 @@ int main(int argc, char* argv[]) {
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
 
-    Fib.initQlearning(Q,gamma,learnrate,u0,Ampl,U);
+    Fib.initQlearning(Q,gamma,learnrate,u0,Ampl,U,epsil);
     
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;
