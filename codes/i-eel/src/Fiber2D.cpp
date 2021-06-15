@@ -467,7 +467,7 @@ void Fiber2D::evol(double dt, Flow2D& U) {
 }
 
 
-void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U){
+void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U, double epsil){
     if(Q.n_cols != 2*Ampl.n_rows)
         ErrorMsg("initQlearning: Q and Ampl are incompatible");
     Q_ = Q;
@@ -478,6 +478,7 @@ void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, 
     u0_ = u0;
     Ampl_ = Ampl;
     state_update(U);
+    epsilon_ = epsil;
 }
 
 
@@ -570,10 +571,7 @@ double Fiber2D::state_update(Flow2D& U) {
         }
     }
     
-    
-    
     std::uniform_real_distribution<double> uniform(0.0,1.0);
-    
     float v = uniform(generator);
     float epsilon = epsilon_;//0.1; 
 
@@ -581,7 +579,7 @@ double Fiber2D::state_update(Flow2D& U) {
     
 
 
-    if(v < epsilon) // if v < epsilon pick the action at random
+    if(v < epsilon_) // if v < epsilon pick the action at random
         action_ = rand() % 8;
     
     // Update the forcing parameters depending on the action
