@@ -28,6 +28,7 @@ public:
     Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U, std::default_random_engine& rng);
     Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U, vector<double> p);
     void read(int N, double L, double zeta, double E, double beta, Flow2D& U, const std::string& filebase);
+    void set_seed(void);
     void alloc();
     // save the fiber configuration to a file
     void save(const std::string& filebase, Flow2D&U);
@@ -125,6 +126,7 @@ private:
     double learnrate_; // learning rate
     double u0_; // discretization of the wind
     float epsilon_ = 0.0;  // exploration rate
+    std::default_random_engine generator_;
     MyCol Ampl_; // table containing the discrete values of the forcing amplitude
     double Xcgold_ = 0; // needed to compute the reward
     
