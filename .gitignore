@@ -8,7 +8,7 @@
 *.run.xml
 *.synctex.gz
 *~
-*/project.xcworkspace/xcuserdata/
+*.xcuserstate
 
 
 
