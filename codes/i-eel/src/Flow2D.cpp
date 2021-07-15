@@ -26,9 +26,10 @@ void Flow2D::initshear(double sig) {
 	shear_[1] = sig; // \partial_y u_x = sig
 }
 
-void Flow2D::initcellular(double u) {
+void Flow2D::initcellular(double u, double L) {
 	type_ = Cellular;
 	u_ = u;
+	L_ = L;
 }
 
 double Flow2D::velocity(double x, double y, int dim) {
