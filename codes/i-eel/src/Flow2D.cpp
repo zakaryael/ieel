@@ -44,10 +44,10 @@ double Flow2D::velocity(double x, double y, int dim) {
 			// Stream function: cos(2\pi x) cos(2\pi y) / (2\pi)
 			switch(dim) {
 				case 0:
-					v = -u_*cos(M_PI*x)*sin(M_PI*y);
+					v = -u_*cos(M_PI*x/L_)*sin(M_PI*y/L_);
 					break;
 				case 1:
-					v = u_*sin(M_PI*x)*cos(M_PI*y);
+					v = u_*sin(M_PI*x/L_)*cos(M_PI*y/L_);
 					break;
 				default:
 					ErrorMsg("Flow2D::velocity: error trying to access an unexisting dimension");
@@ -73,16 +73,16 @@ double Flow2D::gradient(double x, double y, int dim) {
 		case Cellular:
 			switch (dim) {
 				case 0: // \partial_x u_x
-					g = (M_PI)*u_*sin(M_PI*x)*sin(M_PI*y);
+					g = (M_PI/L_)*u_*sin(M_PI*x/L_)*sin(M_PI*y/L_);
 					break;
 				case 1: // \partial_y u_x
-					g = -(M_PI)*u_*cos(M_PI*x)*cos(M_PI*y);
+					g = -(M_PI/L_)*u_*cos(M_PI*x/L_)*cos(M_PI*y/L_);
 					break;
 				case 2: // \partial_x u_y
-					g = (M_PI)*u_*cos(M_PI*x)*cos(M_PI*y);
+					g = (M_PI/L_)*u_*cos(M_PI*x/L_)*cos(M_PI*y/L_);
 					break;
 				case 3: // \partial_y u_y
-					g = -(M_PI)*u_*sin(M_PI*x)*sin(M_PI*y);
+					g = -(M_PI/L_)*u_*sin(M_PI*x/L_)*sin(M_PI*y/L_);
 					break;
 				default:
 					ErrorMsg("Flow2D::gradient: error trying to access an unexisting dimension");
