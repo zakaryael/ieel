@@ -38,7 +38,7 @@ MyMat readQ(const std::string& filebase) {
 		cout<<endl;
 	}
 	return Q;
-};
+}
 
 
 Fiber2D::Fiber2D() {
@@ -584,7 +584,7 @@ double Fiber2D::state_update(Flow2D& U) {
         action_ = action_new;
     }
     // Update the forcing parameters depending on the action
-    if(action_<Ampl_.n_rows) {
+    if(action_<(int)Ampl_.n_rows) {
         p_.at(0)=0; p_.at(1)=1;
     }
     else {
