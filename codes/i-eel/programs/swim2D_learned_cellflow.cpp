@@ -98,14 +98,11 @@ int main(int argc, char* argv[]) {
 	int it = 0;
 	double t = 0;
 	
-	double x0,x;
 	while(it<nstep) {
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
-			x = Fib.getcenter(0);
 			cout<<"t = "<<t<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<< " Action : " << Fib.getaction() << endl;
-			x0 = x;
 			Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
 		}
 		Fib.evol(dt,U);
