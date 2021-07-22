@@ -108,9 +108,10 @@ int main(int argc, char* argv[]) {
         Fib.evol(dt,U);
         t += dt;
         it++;
-        if((it % Nlearning)==0)
+        if((it % Nlearning)==0) {
             Fib.setepsilon(Fib.epsilon()/(double)it);
             Fib.Qupdate(U);
+        }
     }
     
     return 1;
