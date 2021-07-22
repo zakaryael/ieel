@@ -93,7 +93,6 @@ int main(int argc, char* argv[]) {
     double t = 0;
     
     double x0,x;
-    x0 = Fib.getcenter(0);
     //generator.seed((unsigned) time(&tt));
     //set_seed();
     while(it<nstep) {
