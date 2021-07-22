@@ -112,8 +112,7 @@ int main(int argc, char* argv[]) {
 	double t = 0;
 	
 	double x0,x;
-	x0 = Fib.getcenter(0);
-    while(it<nstep) {
+	while(it<nstep) {
         if((it % Nout)==0) {
             cout<<setprecision(4);
             cout << showpoint;
