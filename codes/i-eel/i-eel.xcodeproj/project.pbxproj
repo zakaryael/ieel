@@ -7,10 +7,7 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		381AB7B1265FF30C006900B6 /* learn2D_noflow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = learn2D_noflow.cpp; sourceTree = "<group>"; };
 		382196CC2572A9ED00AA1B03 /* test_swim.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_swim.cpp; sourceTree = "<group>"; };
-		382711E925B8167F00FD16BE /* test_swim2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_swim2D.cpp; sourceTree = "<group>"; };
-		382711EA25B8196700FD16BE /* swim2D_cellflow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = swim2D_cellflow.cpp; sourceTree = "<group>"; };
 		38363E0A256E2EB900542DEF /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		38363E0B256E2FDA00542DEF /* CMakeLists.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		38363E0C256E317800542DEF /* compiler_helper.cmake */ = {isa = PBXFileReference; lastKnownFileType = text; path = compiler_helper.cmake; sourceTree = "<group>"; };
@@ -31,7 +28,8 @@
 		38363E1F256E4D5100542DEF /* Flow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Flow.cpp; sourceTree = "<group>"; };
 		38363E20256E4D5100542DEF /* Flow.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Flow.hpp; sourceTree = "<group>"; };
 		38363E21256E53E700542DEF /* test_buckling.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = test_buckling.cpp; sourceTree = "<group>"; };
-		38AB851625F7F2A600E79D4C /* swim2D_learned_cellflow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = swim2D_learned_cellflow.cpp; sourceTree = "<group>"; };
+		3896A71F26AAE307002CDB86 /* QLearning.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = QLearning.cpp; sourceTree = "<group>"; };
+		3896A72026AAE307002CDB86 /* QLearning.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = QLearning.hpp; sourceTree = "<group>"; };
 		38AB851725F7F2E600E79D4C /* learn2D_cellflow.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = learn2D_cellflow.cpp; sourceTree = "<group>"; };
 		38F5EC3825B75878000B3BA4 /* Fiber2D.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Fiber2D.cpp; sourceTree = "<group>"; };
 		38F5EC3925B75878000B3BA4 /* Fiber2D.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = Fiber2D.hpp; sourceTree = "<group>"; };
@@ -61,11 +59,7 @@
 				38363E21256E53E700542DEF /* test_buckling.cpp */,
 				382196CC2572A9ED00AA1B03 /* test_swim.cpp */,
 				38F5EC3C25B760ED000B3BA4 /* test_buckling2D.cpp */,
-				382711E925B8167F00FD16BE /* test_swim2D.cpp */,
-				382711EA25B8196700FD16BE /* swim2D_cellflow.cpp */,
-				38AB851625F7F2A600E79D4C /* swim2D_learned_cellflow.cpp */,
 				38AB851725F7F2E600E79D4C /* learn2D_cellflow.cpp */,
-				381AB7B1265FF30C006900B6 /* learn2D_noflow.cpp */,
 			);
 			path = programs;
 			sourceTree = "<group>";
@@ -80,6 +74,8 @@
 				38363E20256E4D5100542DEF /* Flow.hpp */,
 				38F5EC3825B75878000B3BA4 /* Fiber2D.cpp */,
 				38F5EC3925B75878000B3BA4 /* Fiber2D.hpp */,
+				3896A71F26AAE307002CDB86 /* QLearning.cpp */,
+				3896A72026AAE307002CDB86 /* QLearning.hpp */,
 				38F5EC3A25B75EC7000B3BA4 /* Flow2D.cpp */,
 				38F5EC3B25B75EC7000B3BA4 /* Flow2D.hpp */,
 			);

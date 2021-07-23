@@ -7,40 +7,6 @@
 
 #include "Fiber2D.hpp"
 
-
-MyMat readQ(const std::string& filebase) {
-	if(filebase.substr(filebase.length()-3,3) != ".nc")
-		ErrorMsg("readQ: wrong file type");
-	int status, ncid;
-	if ((status = nc_open(filebase.c_str(), NC_NETCDF4, &ncid)))
-			ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	size_t ns, na;
-	int tmpi;
-	if ((status = nc_inq_dimid(ncid, "nstate", &tmpi)))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	if ((status = nc_inq_dimlen(ncid, tmpi, &ns)))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	if ((status = nc_inq_dimid(ncid, "nact", &tmpi)))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	if ((status = nc_inq_dimlen(ncid, tmpi, &na)))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	MyMat Q;
-	Q.set_size(ns,na);
-	if ((status = nc_inq_varid(ncid, "Qtable", &tmpi)))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	if ((status = nc_get_var_double(ncid, tmpi, &Q[0])))
-		ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-	cout<<"Initial Q"<<endl;
-	for(size_t is=0; is<ns; ++is) {
-		for(size_t ia=0; ia<na; ++ia) {
-			cout<<Q(is,ia)<<" ";
-		}
-		cout<<endl;
-	}
-	return Q;
-}
-
-
 Fiber2D::Fiber2D() {
 }
 
@@ -178,12 +144,6 @@ Fiber2D::Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U,
     Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
 }
 
-void Fiber2D::set_seed(void){
-    time_t tt;
-    generator_.seed((unsigned) time(&tt));
-}
-
-
 void Fiber2D::alloc() {
     X_.set_size(Ns_+1,2);
     Xold_.set_size(Ns_+1,2);
@@ -266,6 +226,11 @@ void Fiber2D::setforcing(int k, double om) {
     p_.at(1) = 1;
     nu_ = 2.0*M_PI*(double)k/L_;
     om_ = om;
+}
+
+void Fiber2D::setforcing(vector<double> p, double A) {
+    A_ = A;
+    p_ = p;
 }
 
 void Fiber2D::save(const std::string& filebase, Flow2D& U) {
@@ -358,29 +323,6 @@ void Fiber2D::save(const std::string& filebase, Flow2D& U) {
             ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
         if ((status = nc_put_var_double(ncid, id, &T_[0])))
             ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        // Q-table
-        if ((status = nc_def_dim(ncid, "nstate", nstate_, &dimid[0])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        if ((status = nc_def_dim(ncid, "nact", naction_, &dimid[1])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        if ((status = nc_def_var(ncid, "Qtable", NC_DOUBLE, 2, dimid, &id)))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        if ((status = nc_put_var_double(ncid, id, &Q_[0])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        int val[1];
-        if ((status = nc_def_dim(ncid, "one", 1, &dimid[0])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        if ((status = nc_def_var(ncid, "state", NC_INT, 1, dimid, &id)))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        val[0] = state_;
-        if ((status = nc_put_var_int(ncid, id, &val[0])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        if ((status = nc_def_var(ncid, "action", NC_INT, 1, dimid, &id)))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        val[0] = action_;
-        if ((status = nc_put_var_int(ncid, id, &val[0])))
-            ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
-        
         // Close the netcdf file
         if ((status = nc_close(ncid)))
             ErrorMsg("NetCDF: "+std::string(nc_strerror(status)));
@@ -466,31 +408,6 @@ void Fiber2D::evol(double dt, Flow2D& U) {
     t_ += dt_;
 }
 
-
-void Fiber2D::initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U, double epsil){
-    if(Q.n_cols != 2*Ampl.n_rows)
-        ErrorMsg("initQlearning: Q and Ampl are incompatible");
-    Q_ = Q;
-    nstate_ = Q.n_rows;
-    naction_ = Q.n_cols;
-    gamma_ = gamma;
-    learnrate_ = learnrate;
-    u0_ = u0;
-    Ampl_ = Ampl;
-    state_update(U);
-    epsilon_ = epsil;
-    set_seed();
-}
-
-
-void Fiber2D::Qupdate(Flow2D& U) {
-    int stateold = state_;
-    int actold = action_;
-    double qmax = state_update(U);
-    reward();
-    Q_(stateold,actold) = (1.0-learnrate_)*Q_(stateold,actold)+learnrate_*(rew_+gamma_*qmax);
-}
-
 void Fiber2D::interp_U(Flow2D& U) {
     for(int is=0; is<=Ns_; is++) {
         for(int dim=0; dim<2; dim++) {
@@ -526,23 +443,15 @@ void Fiber2D::calc_force() {
     }
 }
 
-double Fiber2D::calc_wind(Flow2D& U) {
-    int iwind = 0;
-    double wind = U.velocity(X_(0,0),X_(0,1),0);
-    if(wind>-u0_) {
-        if(wind<u0_)
-            iwind = 1;
-        else
-            iwind = 2;
-    }
-    return iwind;
+double Fiber2D::wind(Flow2D& U) {
+    return U.velocity(X_(0,0),X_(0,1),0);
 }
 
-int Fiber2D::calc_orientation(){
-    int iorient = 0;
-    if(X_(0,0)-getcenter(0)>0)
-        iorient = 1;
-    return iorient;
+vector<double> Fiber2D::orientation(){
+    vector<double> P(2);
+    P.at(0) = X_(0,0)-getcenter(0);
+    P.at(1) = X_(0,1)-getcenter(1);
+    return P;
 }
 
 int Fiber2D::calc_buckle(){
@@ -558,38 +467,4 @@ int Fiber2D::calc_buckle(){
         }
     }
     return test;
-}
-
-double Fiber2D::state_update(Flow2D& U) {
-    // Compute the new state
-    state_ = calc_wind(U)+3*(calc_buckle()+2*calc_orientation());
-    // Maximize Q and find the action
-    double qmax = -10;
-    for(int ia=0; ia<naction_; ++ia) {
-        if(Q_(state_,ia) > qmax) {
-            qmax = Q_(state_,ia);
-            action_ = ia;
-        }
-    }
-    
-    std::uniform_real_distribution<double> uniform(0.0,1.0);
-    std::uniform_int_distribution<> int_unif(0, 2*Ampl_.n_rows-1);
-    float v = uniform(generator_);
-    int action_new;
-    // std::cout << "\n the random picked number is: "<< v<< endl;
-    if(v < epsilon_) {// if v < epsilon pick the action at random
-        action_new = int_unif(generator_);
-        while(action_new==action_)
-            action_new = int_unif(generator_);
-        action_ = action_new;
-    }
-    // Update the forcing parameters depending on the action
-    if(action_<(int)Ampl_.n_rows) {
-        p_.at(0)=0; p_.at(1)=1;
-    }
-    else {
-        p_.at(0)=1; p_.at(1)=0;
-    }
-    A_ = Ampl_(action_%Ampl_.n_rows);
-    return qmax;
 }

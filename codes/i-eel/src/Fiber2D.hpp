@@ -32,26 +32,13 @@ public:
     void alloc();
     // save the fiber configuration to a file
     void save(const std::string& filebase, Flow2D&U);
-    void save_Q(const std::string outdir);
     // set the forcing parameters
     void setforcing(int k, double om);
+    void setforcing(vector<double> p, double A);
     // compute the tension forces
     void calc_tension();
     // time evolution over a time step dt
     void evol(double dt, Flow2D& U);
-    // initialise Q learning with given array
-    void initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U, double epsil=0.0);
-    // update the Q matrix
-    void Qupdate(Flow2D& U);
-    // define the reward
-    inline void reward(){
-        double Xcg = getcenter(0);
-        rew_ = Xcg-Xcgold_;
-        Xcgold_ = Xcg;
-    };
-    inline double printreward(){
-        return rew_;
-    };
     // compute the position of the center of mass
     inline double getcenter(int dim) {
         double x = 0;
@@ -84,13 +71,14 @@ public:
         X_.save(filebase+"_X.dat",raw_ascii);
         T_.save(filebase+"_T.dat",raw_ascii);
     };
+    double wind(Flow2D& U);
+    vector<double> orientation();
+    int calc_buckle();
+    
     // return internal variables
-    inline int getaction() const { return action_; };
-    inline int getstate() const { return state_; };
     inline double L() const { return L_; };
     inline int N() const { return Ns_; };
-    inline double epsilon() const { return epsilon_; };
-    inline void setepsilon(double epsil) { epsilon_ = epsil; };
+    
 private:
     // Time
     double t_ = 0.0;
@@ -116,22 +104,6 @@ private:
     MyCol NormXi_, T_, D1T_; // tension
     MyMat  Uf_, D1Uf_; // fluid velocity at particle position
     MyMat F_, D1F_; // forcing
-    // Learning parameters
-    bool test_learn_ = false;
-    MyMat Q_; // Q-table
-    int nstate_; // number of states
-    int naction_; // number of actions
-    int state_;
-    int action_;
-    double rew_;
-    double gamma_; // discount rate
-    double learnrate_; // learning rate
-    double u0_; // discretization of the wind
-    float epsilon_ = 0.0;  // exploration rate
-    std::default_random_engine generator_;
-    MyCol Ampl_; // table containing the discrete values of the forcing amplitude
-    double Xcgold_ = 0; // needed to compute the reward
-    
     
     // Derivative matrices
     MySpMat D1_, D2_, D3_, D4_, LapDirich_, Op4_;
@@ -139,10 +111,6 @@ private:
     void diff();
     void interp_U(Flow2D& U);
     void calc_force();
-    double calc_wind(Flow2D& U);
-    int calc_orientation();
-    int calc_buckle();
-    double state_update(Flow2D& U);
     inline double wrap(double x, double L) const { return x-L*floor(x/L); };
 };
 
