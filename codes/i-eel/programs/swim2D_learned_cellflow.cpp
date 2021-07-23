@@ -25,8 +25,8 @@ int main(int argc, char* argv[]) {
 	const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
 	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-	const double Tmax = args.getreal("-T", "--time",600.0, "integration time");
-	const int Nout = args.getint("-nout", "--step_out", 400, "output period (in number of timesteps)");
+	const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
+	const int Nout = args.getint("-nout", "--step_out", 2000, "output period (in number of timesteps)");
 	const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
 	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
@@ -77,16 +77,31 @@ int main(int argc, char* argv[]) {
 		for(int j=0; j<4; ++j)
 		Q(i,j) = 0;
 	}
-	// learned strategy from the best performing learning over an ensemble of 50 trajectories
-	for(int i=0; i<6; ++i) // States corresponding to being wrongly oriented
-	Q(i,2) = 10;
-	for(int i=6; i<12; ++i) // States corresponding to being rightly oriented
-	Q(i,3) = 10;
-	MyCol Ampl;
-	double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
-	Ampl.set_size(2);
-	Ampl(0) = 0;
-	Ampl(1) = a0;
+	// Raphael
+    Q(0,3) = 10;  Q(1,4) = 10;  Q(2,0) = 10;
+    Q(3,3) = 10;  Q(4,4) = 10;  Q(5,0) = 10;
+    //Q(3,3) = 10;  Q(4,1) = 10;  Q(5,0) = 10;
+    Q(6,2) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
+    Q(9,2) = 10;  Q(10,7) = 10; Q(11,7) = 10;
+    //Q(9,2) = 10;  Q(10,6) = 10; Q(11,7) = 10;
+    // Jeremie
+    //Q(0,3) = 10;  Q(1,7) = 10;  Q(2,0) = 10;
+    //Q(3,2) = 10;  Q(4,5) = 10;  Q(5,0) = 10;
+    //Q(6,3) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
+    //Q(9,2) = 10;  Q(10,7) = 10; Q(11,7) = 10;
+    // Zakarya
+    //Q(0,1) = 10;  Q(1,0) = 10;  Q(2,3) = 10;
+    //Q(3,1) = 10;  Q(4,0) = 10;  Q(5,3) = 10;
+    //Q(6,0) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
+    //Q(9,0) = 10;  Q(10,7) = 10; Q(11,7) = 10;
+    
+    MyCol Ampl;
+    double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
+    Ampl.set_size(4);
+    Ampl(0) = 0;
+    Ampl(1) = a0/3.0;
+    Ampl(2) = 2.0*a0/3.0;
+    Ampl(3) = a0;
 	
 	Fib.initQlearning(Q,0,0,u0,Ampl,U);
 	
@@ -102,8 +117,8 @@ int main(int argc, char* argv[]) {
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
-			cout<<"t = "<<t<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<< " Action : " << Fib.getaction() << endl;
-			Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
+            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<" Action: "<< Fib.getaction()<<" State: "<< Fib.getstate()<<endl;
+            Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
 		}
 		Fib.evol(dt,U);
 		t += dt;
