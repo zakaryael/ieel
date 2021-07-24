@@ -7,6 +7,27 @@
 
 #include "QLearning.hpp"
 
+MyMat readlastQ(const std::string& filebase, int ns, int na) {
+    MyMat Q(ns,na);
+    int it=0, sz=ns*na, rdsz;
+    double tmp[5];
+    char cname[512];
+    strcpy(cname, filebase.c_str());
+    FILE *fin = fopen(cname,"r");
+    fread(&tmp[0],sizeof(double),5,fin);
+    while(!feof(fin)) {
+        rdsz = fread(&Q[0],sizeof(double),sz,fin);
+        fread(&tmp[0],sizeof(double),5,fin);
+        it++;
+    }
+    if(rdsz!=sz)
+        ErrorMsg("it = "+i2s(it)+": Could not read from file "+filebase);
+    cout<<"Detected "<<it<<" iterations"<<endl;
+    fclose(fin);
+    return Q;
+}
+
+
 QLearning::QLearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, double epsil){
     if(Q.n_cols != 2*Ampl.n_rows)
         ErrorMsg("initQlearning: Q and Ampl are incompatible");

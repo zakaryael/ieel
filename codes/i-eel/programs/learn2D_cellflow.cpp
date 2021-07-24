@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     // Read the command-line options
     args.section("Program options");
     const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
-    const string indir = args.getpath("-in", "--indir", "data/", "input directory");
+    const string indir = args.getpath("-in", "--indir", "", "input directory from which initial Q is read");
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
     const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
@@ -83,14 +83,20 @@ int main(int argc, char* argv[]) {
     // define the learning
     MyMat Q;
     Q.set_size(12,8);
-    cout<<"Start Q from scratch"<<endl;
-    for (int i = 0; i <12; i++) {
-        for (int j = 0; j<8; j++)
-            Q(i,j) = qinit;
+    if(strcmp(indir.c_str(),"")==0) {
+        cout<<"Start Q from scratch"<<endl;
+        for (int i = 0; i <12; i++) {
+            for (int j = 0; j<8; j++)
+                Q(i,j) = qinit;
+        }
+        for (int j = 5; j<8; j++) {
+            Q(2,j) = 0.4*qinit;
+            Q(5,j) = 0.4*qinit;
+        }
     }
-    for (int j = 5; j<8; j++) {
-        Q(2,j) = 0.4*qinit;
-        Q(5,j) = 0.4*qinit;
+    else {
+        cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
+        Q = readlastQ(indir+"learn.bin",12,8);
     }
     
     MyCol Ampl;

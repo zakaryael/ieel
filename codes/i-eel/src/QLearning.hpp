@@ -15,6 +15,8 @@ using namespace arma;
 typedef Mat<double> MyMat;
 typedef Col<double> MyCol;
 
+MyMat readlastQ(const std::string& filebase, int ns, int na);
+
 class QLearning {
 public:
     // Calss initialisation
