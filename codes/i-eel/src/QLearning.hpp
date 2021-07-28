@@ -21,20 +21,27 @@ class QLearning {
 public:
     // Calss initialisation
     QLearning();
-    QLearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0);
+    QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0);
+    // 
     void set_seed(void);
     int discr_wind(double wind);
     int discr_orientation(vector<double> P);
-    double state_update(double u, vector<double> P, int buckl);
     void save(const std::string& filebase);
     
-    // update the Q matrix
-    void Qupdate(double xnew, double u, vector<double> P, int buckl);
-    // define the reward
+    //
+    int compute_state(double u, vector<double> P, int buckl);
+    void select_action(void);
+    void update_forcing(void);
     inline void reward(double xnew){
         rew_ = xnew-xold_;
         xold_ = xnew;
     };
+    // update the Q matrix
+    void Qupdate(double xnew, int);
+    void update_policy(void);
+    // define the reward
+
+
     
     inline double printreward(){ return rew_; };
     inline vector<double> getp() { return p_; };
@@ -48,6 +55,7 @@ public:
 private:
     // Learning parameters
     MyMat Q_; // Q-table
+    MyMat policy_;
     int nstate_; // number of states
     int naction_; // number of actions
     int state_;
