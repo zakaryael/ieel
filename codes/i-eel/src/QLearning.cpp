@@ -28,7 +28,7 @@ MyMat readlastQ(const std::string& filebase, int ns, int na) {
 }
 
 
-QLearning::QLearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, double epsil){
+QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil){
     if(Q.n_cols != 2*Ampl.n_rows)
         ErrorMsg("initQlearning: Q and Ampl are incompatible");
     Q_ = Q;
@@ -36,8 +36,9 @@ QLearning::QLearning(MyMat Q, double gamma, double learnrate, double u0, MyCol A
     naction_ = Q.n_cols;
     gamma_ = gamma;
     learnrate_ = learnrate;
-    u0_ = u0;
-    Ampl_ = Ampl;
+    u0_ = u0; 
+    Ampl_ = Ampl; // ??
+    policy_ = Pi;
     epsilon_ = epsil;
     set_seed();
     p_.resize(2);
@@ -47,7 +48,6 @@ void QLearning::set_seed(void){
     time_t tt;
     generator_.seed((unsigned) time(&tt));
 }
-
 
 int QLearning::discr_wind(double wind) {
     int iwind = 0;
@@ -67,29 +67,36 @@ int QLearning::discr_orientation(vector<double> P){
     return iorient;
 }
 
-double QLearning::state_update(double u, vector<double> P, int buckl) {
-    // Compute the new state
-    state_ = discr_wind(u)+3*(buckl+2*discr_orientation(P));
-    // Maximize Q and find the action
-    double qmax = -10;
-    for(int ia=0; ia<naction_; ++ia) {
-        if(Q_(state_,ia) > qmax) {
-            qmax = Q_(state_,ia);
-            action_ = ia;
-        }
-    }
-    
-    std::uniform_real_distribution<double> uniform(0.0,1.0);
-    std::uniform_int_distribution<> int_unif(0, 2*Ampl_.n_rows-1);
-    float v = uniform(generator_);
-    int action_new;
-    // std::cout << "\n the random picked number is: "<< v<< endl;
-    if(v < epsilon_) {// if v < epsilon pick the action at random
-        action_new = int_unif(generator_);
-        while(action_new==action_)
-            action_new = int_unif(generator_);
-        action_ = action_new;
-    }
+int QLearning::compute_state(double u, vector<double> P, int buckl){
+    // Computes and updates the current state
+    int state = discr_wind(u)+3*(2 * buckl + discr_orientation(P));
+    state_ = state;
+    return state;
+}
+
+void QLearning::select_action(void){
+    //selects an action based on the currently followed policy
+    arma::Row<double> tmp = policy_.row(state_);
+    std::discrete_distribution<int> dist(tmp.begin(), tmp.end());
+    action_ = dist(generator_);
+}
+
+void QLearning::update_policy(void){
+    //updates the followed policy
+    //epsilon-greedy policy 
+    policy_.row(state_).fill(epsilon_ / (naction_ - 1));
+    policy_(state_, Q_.row(state_).index_max()) = 1 - epsilon_;
+}
+
+void QLearning::Qupdate(double xnew, int previous_state) {
+    //updates the value of Q
+    reward(xnew);
+    Q_(previous_state, action_) = (1.0 - learnrate_) * Q_(previous_state, action_) + learnrate_ * (rew_ + gamma_ * Q_.row(state_).max());
+    std::cout << Q_ << std::endl;
+    std::cout << policy_ << std::endl;
+}
+
+void QLearning::update_forcing(void){
     // Update the forcing parameters depending on the action
     if(action_<(int)Ampl_.n_rows) {
         p_.at(0)=0; p_.at(1)=1;
@@ -98,16 +105,6 @@ double QLearning::state_update(double u, vector<double> P, int buckl) {
         p_.at(0)=1; p_.at(1)=0;
     }
     A_ = Ampl_(action_%Ampl_.n_rows);
-    return qmax;
-}
-
-
-void QLearning::Qupdate(double xnew, double u, vector<double> P, int buckl) {
-    int stateold = state_;
-    int actold = action_;
-    double qmax = state_update(u,P,buckl);
-    reward(xnew);
-    Q_(stateold,actold) = (1.0-learnrate_)*Q_(stateold,actold)+learnrate_*(rew_+gamma_*qmax);
 }
 
 void QLearning::save(int istep, const std::string& filebase) {
