@@ -5,6 +5,7 @@
 //  Created by Jeremie Bec on 24/02/2021.
 //j
 
+
 #include "src/Fiber2D.hpp"
 #include "src/QLearning.hpp"
 #include "basics/RunsIO.h"
@@ -22,7 +23,9 @@ int main(int argc, char* argv[]) {
     // Read the command-line options
     args.section("Program options");
     const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
-    const string indir = args.getpath("-in", "--indir", "", "input directory from which initial Q is read");
+    const string indir = args.getpath("-in", "--indir", "", "input directory to a binary file from which initial Q is read");
+    const string Qinitdir = args.getpath("-Qdir", "--Qinitdir", "", "input directory to a csv file from which the initial Q is read");
+    const string Pinitdir = args.getpath("-Pidir", "--Pinitdir", "", "input directory to a csv file from which the initial policy is read");  
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
     const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
@@ -35,14 +38,16 @@ int main(int argc, char* argv[]) {
     const double om = args.getreal("-om", "--frequency", 2, "Forcing frequency");
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
     const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
-    const int Nlearning = args.getint("-nl", "--step_learning", 200, "learning period (in number of timesteps)");
-    const int Noutlearning = args.getint("-nlout", "--step_save_learning", 200, "learning output period (in number of timesteps)");
+    const int Nlearning = args.getint("-nl", "--step_learning", 2000, "learning period (in number of timesteps)");
+    const int Noutlearning = args.getint("-nlout", "--step_save_learning", 2000, "learning output period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
     const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
     const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
     const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
-    
+    const int learning = args.getint("-lrn", "--learning", 1, "Input 1 for swimming with learning 0 otherwise");
+    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
+    const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise"); 
     args.check();
     mkdir(outdir);
     args.save(outdir);
@@ -51,7 +56,7 @@ int main(int argc, char* argv[]) {
     Flow2D U(Cellular);
     U.initcellular(u);
     // To set the fluid flow set to 0:
-    //Flow2D U(Null);
+    if (noflow == 1){Flow2D U(Null);}
     
     // define the fiber
     cout<<endl<<"------------------------------------------------"<<endl;
@@ -82,9 +87,19 @@ int main(int argc, char* argv[]) {
     
     // define the learning
     MyMat Q;
-    Q.set_size(12,8);
+    MyMat Pi;
+    Pi.set_size(12, 8);
+    Pi.ones();
+    
+    if(strcmp(Qinitdir.c_str(),"")==0){
+        Q.load("Q.csv", arma::csv_ascii);
+    }
+    else{
+        Q.load(Qinitdir, arma::csv_ascii);
+    }
     if(strcmp(indir.c_str(),"")==0) {
-        cout<<"Start Q from scratch"<<endl;
+        cout<<"Start Q from scratch..."<<qinit<<" psych!"<<endl;
+        /*Q.set_size(12,8);
         for (int i = 0; i <12; i++) {
             for (int j = 0; j<8; j++)
                 Q(i,j) = qinit;
@@ -92,7 +107,7 @@ int main(int argc, char* argv[]) {
         for (int j = 5; j<8; j++) {
             Q(2,j) = 0.4*qinit;
             Q(5,j) = 0.4*qinit;
-        }
+        }*/
     }
     else {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
@@ -106,7 +121,7 @@ int main(int argc, char* argv[]) {
     Ampl(1) = a0/3.0;
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
-    QLearning QL(Q,gamma,learnrate,u0,Ampl,epsil);
+    QLearning QL(Q, Pi, gamma,learnrate,u0,Ampl,epsil);
     char cname[512];
     string fname = outdir+"learn.bin";
     strcpy(cname, fname.c_str());
@@ -120,16 +135,27 @@ int main(int argc, char* argv[]) {
     cout<<"output every "<<Nout<<" steps"<<endl;
     int it = 0;
     double t = 0;
-    
-    while(it<nstep) {
-        if((it % Nlearning)==0) {
-            QL.Qupdate(Fib.getcenter(0),Fib.wind(U),Fib.orientation(),Fib.calc_buckle());
+
+
+    int previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); //computing s0
+    QL.select_action(); // selecting an acting according to the initial policy
+    QL.update_forcing(); // translating the action into physical parameters
+    Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
+
+    while(it<nstep) 
+    {
+        if((it % Nlearning)==0  && it != 0) {
+            previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
+            QL.Qupdate(Fib.getcenter(0), previous_state);
+            if(learning == 1) QL.update_policy();
+            QL.select_action();
+            QL.update_forcing();
             Fib.setforcing(QL.getp(), QL.getA());
-        }
+         }
         if((it % Nout)==0) {
-            cout<<setprecision(4);
-            cout << showpoint;
-            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0)<<" Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
+            cout<<setprecision(3);
+            //cout << showpoint;
+            cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
             Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }
         if((it % Noutlearning)==0) {
@@ -142,3 +168,4 @@ int main(int argc, char* argv[]) {
     
     return 1;
 }
+
