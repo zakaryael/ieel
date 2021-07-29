@@ -92,8 +92,6 @@ void QLearning::Qupdate(double xnew, int previous_state) {
     //updates the value of Q
     reward(xnew);
     Q_(previous_state, action_) = (1.0 - learnrate_) * Q_(previous_state, action_) + learnrate_ * (rew_ + gamma_ * Q_.row(state_).max());
-    std::cout << Q_ << std::endl;
-    std::cout << policy_ << std::endl;
 }
 
 void QLearning::update_forcing(void){
