@@ -1,0 +1,79 @@
+\documentclass[a4paper,11pt]{article}
+
+\usepackage{palatino}
+\usepackage[a4paper,top=2.5cm,left=2.5cm,textwidth=16cm,textheight=24cm]{geometry}
+\usepackage[super]{natbib}
+\usepackage[francais]{babel}
+%\usepackage[latin1]{inputenc}
+\usepackage[utf8x]{inputenc}
+\usepackage[OT1]{fontenc}
+\usepackage{graphicx}
+\usepackage{bm}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{hyperref}
+\usepackage[small]{titlesec}
+
+\newcommand*{\doi}[1]{\href{http://dx.doi.org/#1}{doi: #1}}
+
+\begin{document}
+\centerline{\large Projet Trimestre Recherche ``Fluides''}
+\vspace{1cm}
+\centerline{\Large \textbf{Optimiser le déplacement de micro-nageurs}}
+\centerline{\Large \textbf{dans des écoulements complexes}}
+
+\vspace{2cm}
+
+Les microorganismes tels que les bactéries ou le plancton sont des exemples naturels de particules autopropulsées. Ils inspirent souvent la conception de dispositifs artificiels utilisés pour la micro-fabrication industrielle, l’élimination de déchets toxiques, l'administration ciblée de médica\-ments ou des diagnostiques localisés. De nombreuses questions restent ouvertes sur la façon dont ces micro-nageurs optimisent leur mouvement, et notamment comment ils se comportent dans des écoulements complexes comprenant des parois~\cite{crowdy2010two} ou ayant des propriétés non-newtoniennes~\cite{shen2011undulatory}.
+
+Parmi les différents types de nage, la locomotion ondulatoire est un moyen d'autopropulsion qui repose sur la génération et la propagation d'ondes le long du nageur \cite{cohen2010swimming}. Il s’agit d’une technique relativement simple, mais remarquablement robuste, qui repose sur les interactions avec le fluide. Pour les petits nageurs, les effets d’inertie sont négligeables et la dynamique est décrite par le régime de Stokes. Dans le cas d’un domaine de taille infinie, les forces de traînée et de portance sont alors connues et les nageurs ont une dynamique explicites qui se prête aux techniques de contrôle optimal des équations différentielles pour maximiser la nage \cite{alouges2013self,berti2020swimming}. Toutefois, cette approche ne s’étend pas à des situations plus complexes pour lesquelles il devient indispensable de contrôler en parallèle la dynamique du fluide.
+
+\section{Dynamique de fibres flexibles sans inertie dans l'approximation des corps minces}
+\paragraph{Equation de Cosserat.} Nous considérons que le micro-nageur peut être approché par une fibre de longueur $\ell$, extrêmement fine (dont le diamètre $d$ est tel que $d\ll\ell$)  avec une densité de masse linéique $\sigma$. Elle est caractérisée au temps $t$ par une courbe $\bm X(s,t)\in\mathbb{R}^3$ paramétrisée par sa longueur d'arc $s$.  Cette fibre est considérée semi-flexible, inextensible et plongée dans un champs de vitesse $\bm u(\bm x,t)$.  Sa dynamique est décrite par la théorie des corps minces  et suit l'équation de Newton appliquée à un élément de longueur infinitésimal:
+\begin{equation}
+  \sigma\,\partial_t ^2 \bm X = -\zeta\,\mathbb{D}^{-1} \left[\partial_t \bm X - \bm u(\bm X,t) \right] + \partial_s(T\,\partial_s \bm X) - EI\,\partial_s^4 \bm X + \bm f(s,t).
+  \label{eq:accel_fib}
+\end{equation}
+pour $s\in[\ell/2,\ell/2]$.  Quatre forces différentes apparaissent dans le membre de droite. Le premier est la force de traînée linéique qui fait intervenir le coefficient de traînée $\zeta = 8\pi\nu\rho_{\rm f}/[2\log(\ell/d)-1]$ (avec $\nu$ la viscosité cinématique du fluide et $\rho_{\rm p}$ sa densité) et la matrice de resistance $\mathbb{D}^{-1}  = \mathbb{I} -(1/2)\, \partial_s\bm X\,\partial_s\bm X^{\mathsf{T}}$. La seconde force et la tension dont l'amplitude $T$ est déterminée par la contrainte d'inextensibilité $|\partial_s\bm X(s,t)| = 1$, valable à tout instant le long de la fibre. La troisième force est l'élasticité de flexion et dépend du module d'Young $E$ et de l'inertie $I$ de la fibre. Finalement, $\bm f$ est une force interne de déformation qui doit être prescrite pour prendre en compte les comportements dits actifs de la fibre, à savoir les mouvements qui sont responsables de sa locomotion. L'équation (\ref{eq:accel_fib}) est associée aux conditions de bord $\partial_s^2\bm X=0$ et $\partial_s^3\bm X=0$ aux extrémités de la fibre $s = \pm\ell/2$.
+
+Nous supposons que la vitesse du fluide est caractérisée par une échelle de temps $\tau_{\rm f}$ et une échelle d'espace $\ell_{\rm f}$, avec une amplitude de l'ordre de $U = \ell_{\rm f}/\tau_{\rm f}$.  En absence de force ($\bm f =0$), la dynamique d'une fibre dépend alors de trois paramètres sans dimension: le rapport $\mathcal{L} = \ell/\ell_{\rm f}$ entre sa longueur et l'échelle caractéristique du fluide, le nombre de Stokes $St = \sigma/(\zeta\,\tau_{\rm f})$ qui mesure l'importance des effets inertiels dans sa dynamique et la flexibilité adimensionnée $\mathcal{F} = \zeta\,\ell^4/(EI\,\tau_{\rm f})$ qui est le rapport entre le temps de relaxation élastique de la fibre et le temps associé à sa déformation par le fluide.
+
+\paragraph{Déformations ondulatoires.} Afin de mieux comprendre comment choisir la force de locomotion, commençons par considérer le cas où il n'y a pas d'écoulement ($\bm u=0$). Regardons sous quelles conditions est-ce qu'il existe une solution de (\ref{eq:accel_fib}) correspondant à la propagation d'une onde le long de la fibre.  Nous choisissons cette onde pour qu'elle ait la forme d'une hélice circulaire et soit associée à un déplacement avec une vitesse $V$ le long de l'axe de l'hélice. En se mettant dans le repère $(\hat{x},\hat{y},\hat{z})$ où l'axe de l'hélice est le long de $\hat{z}$, nous cherchons une solution qui, loin des bords, prendrait la forme
+\begin{equation}
+  \bm X(s,t) = \left[ \begin{array}{c} R\,\cos(\nu\,s-\omega\,t) \\ \varepsilon R\,\sin(\nu\,s-\omega\,t)\\  V\,t+\tau\,s\end{array}\right]\!,\quad\mbox{avec}\ \ \varepsilon = \pm 1 \ \ \mbox{et}\ \ R^2\nu^2+\tau^2 = 1,
+  \label{eq:helice}
+\end{equation}
+où $R$ est le rayon de l'hélice, $\tau\in[-1,1]$ sa torsion et $\varepsilon$ sa chiralité.  La courbure est constante et égale à $R\,\nu^2$ et la dernière condition correspond à imposer  l'inextensibilité de la fibre. Il faut noter que cette solution n'est pas compatible avec les conditions de bord satisfaites par les solutions de (\ref{eq:accel_fib}). Pour l'instant, cela n'a pas d'importance car nous cherchons des solutions prenant la forme ci-dessus suffisamment loin des extrémités de la fibre. En injectant (\ref{eq:helice}) dans l'équation dynamique (\ref{eq:accel_fib}), on obtient
+\begin{eqnarray}
+  f_{\hat{x}} &=& \left(EI\,\nu^4-\sigma\,\omega^2\right) R\,\cos(\nu\,s-\omega\,t) + \zeta \left[\frac{\tau\,\nu}{2}V+\left(1-\frac{R^2\nu^2}{2}\right) \omega\right]R\,\sin(\nu\,s-\omega\,t), \label{eq:fxtmp}\\
+  f_{\hat{y}}&=& -\zeta \left[\frac{\tau\,\nu}{2}V+\left(1-\frac{R^2\nu^2}{2}\right) \omega\right]\varepsilon R\, \cos(\nu\,s-\omega\,t)+\left(EI\,\nu^4-\sigma\,\omega^2\right) \varepsilon R\,\sin(\nu\,s-\omega\,t).\\
+   f_{\hat{z}} &=& \zeta\left(1-\frac{\tau^2}{2}\right)V +\zeta\,\frac{\tau\,\nu}{2}\,R^2\omega \label{eq:fztmp},
+ \end{eqnarray}
+La condition d'inextensibilité $|\partial_s\bm X|^2 = 1$ est satisfaite à chaque instant par la solution  (\ref{eq:helice}), ce qui explique pourquoi les termes de tension n'interviennent pas dans le système ci-dessus.
+
+On voit aisément à partir de ces équations qu'il existe certaines solutions particulières associées à une force nulle.  Tout d'abord, en absence de traînée visqueuse ($\zeta=0$)  la fibre peut développer des ondes propres, dites inertielles, qui satisfont la relation de dispersion
+\begin{equation}
+  \nu = \pm\left[\frac{\sigma}{EI}\right]^{1/4}\omega^{1/2}.
+\end{equation}
+Un autre cas intéressant correspond à $\zeta\neq0$ et à imposer que la force ne soit pas une source globale de quantité de mouvement pour le nageur, à savoir $\int \bm f \mathrm{d}s = 0$. On voit d'après les équations (\ref{eq:fxtmp}) à (\ref{eq:fztmp}) que cela correspond à choisir $\nu \in (2\pi/L)\mathbb{Z}$ et $f_{\hat{z}} = 0$. Avec ce choix, la vitesse de déplacement s'écrit en fonction des paramètres de l'hélice, à savoir
+\begin{equation}
+  V = -\frac{\omega\,R^2\nu\,\tau}{2-\tau^2} = -\frac{\omega}{\nu} \, \frac{\tau\,(1-\tau^2)}{2-\tau^2}.
+\end{equation}
+Dans les directions perpendiculaires au mouvement, la force associée s'écrit alors
+\begin{eqnarray}
+  f_{\hat{x}} &=& \left(EI\,\nu^4-\sigma\,\omega^2\right) R\,\cos(\nu\,s-\omega\,t) + \frac{\zeta\,\omega}{2-\tau^2}\,R\,\sin(\nu\,s-\omega\,t), \label{eq:fx}\\
+  f_{\hat{y}}&=& - \frac{\zeta\, \omega}{2-\tau^2}\,\varepsilon R\, \cos(\nu\,s-\omega\,t)+\left(EI\,\nu^4-\sigma\,\omega^2\right) \varepsilon R\,\sin(\nu\,s-\omega\,t), \label{eq:fy}
+\end{eqnarray}
+où $R = \sqrt{1-\tau^2}/\nu$. Cette solution permet donc de construire une force adéquate pour la locomotion de la fibre dans une direction $\bm p$ donnée. Elle est paramétrée par le nombre d'onde $\nu$, la fréquence $\omega$ et la torsion $\tau$. Son expression est de la forme $\bm f = [\bm m, \bm n, \bm p]\  [f_{\hat{x}}, f_{\hat{y}},0]^{\mathsf{T}}$ où  $\bm m$ et $\bm n$ sont deux vecteurs unitaires orthogonaux, tous deux orthogonaux à $\bm p$, les expressions de $f_{\hat{x}}$ et $f_{\hat{y}}$ étant données par (\ref{eq:fx})-(\ref{eq:fy}).
+
+\paragraph{Limite sur-amortie.} Dans la limite où les fibres ont une faible inertie ($St\to0$), leur dynamique peut être simplifiée. La vitesse d'un segment infinitésimal de la fibre s'écrit alors
+\begin{equation}
+  \partial_t \bm X = \bm u(\bm X,t) +\frac{1}{\zeta}\,\mathbb{D}\left[ \partial_s(T\partial_s \bm X) - EI\,\partial_s^4 \bm X + \bm f(s,t) \right]\!,\quad\mbox{avec}\ \ \mathbb{D} = \mathbb{I} + \partial_s\bm X\,\partial_s\bm X^{\mathsf{T}}.
+  \label{eq:vel_fib}
+\end{equation}
+Nous nous concentrons, au moins dans un premier temps, sur ce régime sur-amorti. 
+
+\bibliographystyle{unsrtnat}
+\bibliography{../biblio/biblio}
+
+\end{document}
