@@ -26,14 +26,15 @@ int main(int argc, char* argv[]) {
 	const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
 	const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
-	const int Nout = args.getint("-nout", "--step_out", 2000, "output period (in number of timesteps)");
-	const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
+    const int Nout = args.getint("-nout", "--step_out", 10000, "output period (in number of timesteps)");
+    const int Nout2 = args.getint("-nout_learn", "--step_out_learn", 2000, "output period of learning (in number of timesteps)");
+    const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
 	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
 	const double om = args.getreal("-om", "--frequency", 2, "Forcing frequency");
 	const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
 	const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
-	const int Nlearning = args.getint("-nl", "--step_learning", 1, "learning period (in number of timesteps)");
+	const int Nlearning = args.getint("-nl", "--step_learning", 2000, "learning period (in number of timesteps)");
 	const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
 	
 	args.check();
@@ -92,6 +93,14 @@ int main(int argc, char* argv[]) {
     //Q(3,1) = 10;  Q(4,0) = 10;  Q(5,3) = 10;
     //Q(6,0) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
     //Q(9,0) = 10;  Q(10,7) = 10; Q(11,7) = 10;
+
+    int Pol[] = {3, 1, 0, 3, 7, 7};
+    for(int i=0; i<3; ++i) {
+        Q(i,Pol[i]) = 10;
+        Q(i+3,Pol[i]) = 10;
+        Q(i+6,Pol[i+3]) = 10;
+        Q(i+9,Pol[i+3]) = 10;
+    }
     
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
@@ -111,7 +120,28 @@ int main(int argc, char* argv[]) {
 	int it = 0;
 	double t = 0;
 	
+    char cname[512];
+    string fname = outdir+"policy.txt";
+    strcpy(cname, fname.c_str());
+    FILE *fout = fopen(cname,"w");
+    fprintf(fout,"%d\t%d\t%d\t%d\t%d\t%d\n",Pol[0],Pol[1],Pol[2],Pol[3],Pol[4],Pol[5]);
+    fclose(fout);
+    fname = outdir+"output.bin";
+    strcpy(cname, fname.c_str());
+    fout = fopen(cname,"w");
+    double tmp[6];
+    
+    
 	while(it<nstep) {
+        if((it % Nout2)==0) {
+            tmp[0] = (double)it;
+            tmp[1] = Fib.getcenter(0);
+            tmp[2] = Fib.getcenter(1);
+            tmp[3] = Fib.getvelocity(0);
+            tmp[4] = Fib.getvelocity(1);
+            tmp[5] = (double)Fib.getstate();
+            fwrite(&tmp, sizeof(double), 6, fout);
+        }
 		if((it % Nout)==0) {
 			cout<<setprecision(4);
 			cout << showpoint;
@@ -124,6 +154,6 @@ int main(int argc, char* argv[]) {
 		if((it % Nlearning)==0)
 			Fib.Qupdate(U);
 	}
-	
+    fclose(fout);
 	return 1;
 }
