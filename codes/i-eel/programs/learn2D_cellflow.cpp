@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
     double t = 0;
 
 
-    int previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); //computing s0
+    int state, previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); //computing s0
     QL.select_action(); // selecting an acting according to the initial policy
     QL.update_forcing(); // translating the action into physical parameters
     Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
@@ -145,8 +145,9 @@ int main(int argc, char* argv[]) {
     while(it<nstep) 
     {
         if((it % Nlearning)==0  && it != 0) {
-            previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
+            state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
             QL.Qupdate(Fib.getcenter(0), previous_state);
+            previous_state = state;
             if(learning == 1) QL.update_policy();
             QL.select_action();
             QL.update_forcing();

@@ -74,6 +74,15 @@ int QLearning::compute_state(double u, vector<double> P, int buckl){
     return state;
 }
 
+int QLearning::compute_state(double u, vector<double> P){
+    // Computes and updates the current state
+    int state = 2*discr_orientation(P);
+    if(discr_wind(u)>0)
+        state++;
+    state_ = state;
+    return state;
+}
+
 void QLearning::select_action(void){
     //selects an action based on the currently followed policy
     arma::Row<double> tmp = policy_.row(state_);

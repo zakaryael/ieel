@@ -30,6 +30,7 @@ public:
     
     //
     int compute_state(double u, vector<double> P, int buckl);
+    int compute_state(double u, vector<double> P);
     void select_action(void);
     void update_forcing(void);
     inline void reward(double xnew){
