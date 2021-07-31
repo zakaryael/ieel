@@ -7,6 +7,7 @@ set(program_APPS
   test_swim
   test_buckling2D
   learn2D_cellflow
+  learn2D_reduced
   )
 
 foreach (program ${program_APPS})
