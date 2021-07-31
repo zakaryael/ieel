@@ -87,7 +87,11 @@ int main(int argc, char* argv[]) {
     MyMat Q;
     MyMat Pi;
     Pi.set_size(4, 3);
-    Pi.ones();
+    //Pi.ones();
+    Pi(0,0) = 1; Pi(0,1) = 0; Pi(0,2) = 0;
+    Pi(1,0) = 1; Pi(1,1) = 0; Pi(1,2) = 0;
+    Pi(2,0) = 1; Pi(2,1) = 0; Pi(2,2) = 0;
+    Pi(3,0) = 0; Pi(3,1) = 0; Pi(3,2) = 1;
     
 //    if(strcmp(Qinitdir.c_str(),"")==0){
 //        Q.load("Q.csv", arma::csv_ascii);
@@ -107,7 +111,8 @@ int main(int argc, char* argv[]) {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
         Q = readlastQ(indir+"learn.bin",4,3);
     }
-    
+    Q = Pi;
+
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
     Ampl.set_size(2);
