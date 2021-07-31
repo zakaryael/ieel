@@ -21,7 +21,7 @@ class QLearning {
 public:
     // Calss initialisation
     QLearning();
-    QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0);
+    QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0, bool merge_zeros=false);
     // 
     void set_seed(void);
     int discr_wind(double wind);
@@ -71,6 +71,7 @@ private:
     vector<double> p_; // direction of the helix
     double A_ = 0.0;   // internal amplitude
     double xold_ = 0; // needed to compute the reward
+    bool merge_zeros_ = false;
 };
 
 #endif /* QLearning_hpp */

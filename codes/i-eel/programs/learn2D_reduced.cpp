@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
     // define the learning
     MyMat Q;
     MyMat Pi;
-    Pi.set_size(4, 4);
+    Pi.set_size(4, 3);
     Pi.ones();
     
 //    if(strcmp(Qinitdir.c_str(),"")==0){
@@ -97,15 +97,15 @@ int main(int argc, char* argv[]) {
 //    }
     if(strcmp(indir.c_str(),"")==0) {
         cout<<"Start Q from scratch..."<<qinit<<endl;
-        Q.set_size(4,4);
+        Q.set_size(4,3);
          for (int i = 0; i<4; i++) {
-             for (int j = 0; j<4; j++)
+             for (int j = 0; j<3; j++)
                  Q(i,j) = qinit;
          }
     }
     else {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
-        Q = readlastQ(indir+"learn.bin",4,4);
+        Q = readlastQ(indir+"learn.bin",4,3);
     }
     
     MyCol Ampl;
@@ -113,7 +113,7 @@ int main(int argc, char* argv[]) {
     Ampl.set_size(2);
     Ampl(0) = 0;
     Ampl(1) = a0;
-    QLearning QL(Q, Pi, gamma, learnrate, u0, Ampl, epsil);
+    QLearning QL(Q, Pi, gamma, learnrate, u0, Ampl, epsil, true);
     char cname[512];
     string fname = outdir+"learn.bin";
     strcpy(cname, fname.c_str());

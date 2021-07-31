@@ -28,9 +28,16 @@ MyMat readlastQ(const std::string& filebase, int ns, int na) {
 }
 
 
-QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil){
-    if(Q.n_cols != 2*Ampl.n_rows)
-        ErrorMsg("initQlearning: Q and Ampl are incompatible");
+QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil, bool merge_zeros){
+    merge_zeros_ = merge_zeros;
+    if(merge_zeros_) {
+        if(Q.n_cols != 2*Ampl.n_rows-1)
+            ErrorMsg("initQlearning: Q and Ampl are incompatible");
+    }
+    else {
+        if(Q.n_cols != 2*Ampl.n_rows)
+            ErrorMsg("initQlearning: Q and Ampl are incompatible");
+    }
     Q_ = Q;
     nstate_ = Q.n_rows;
     naction_ = Q.n_cols;
@@ -93,7 +100,7 @@ void QLearning::select_action(void){
 void QLearning::update_policy(void){
     //updates the followed policy
     //epsilon-greedy policy 
-    policy_.row(state_).fill(epsilon_ / (naction_ - 1));
+    policy_.row(state_).fill(epsilon_ / (double)(naction_ - 1));
     policy_(state_, Q_.row(state_).index_max()) = 1 - epsilon_;
 }
 
@@ -105,13 +112,26 @@ void QLearning::Qupdate(double xnew, int previous_state) {
 
 void QLearning::update_forcing(void){
     // Update the forcing parameters depending on the action
-    if(action_<(int)Ampl_.n_rows) {
-        p_.at(0)=0; p_.at(1)=1;
+    if(merge_zeros_) {
+        int ii = action_-(naction_-1)/2;
+        if(ii>=0) {
+            p_.at(0)=1; p_.at(1)=0;
+            A_ = Ampl_(ii);
+        }
+        else {
+            p_.at(0)=0; p_.at(1)=1;
+            A_ = Ampl_(-ii);
+        }
     }
     else {
-        p_.at(0)=1; p_.at(1)=0;
+        if(action_<(int)Ampl_.n_rows) {
+            p_.at(0)=0; p_.at(1)=1;
+        }
+        else {
+            p_.at(0)=1; p_.at(1)=0;
+        }
+        A_ = Ampl_(action_%Ampl_.n_rows);
     }
-    A_ = Ampl_(action_%Ampl_.n_rows);
 }
 
 void QLearning::save(int istep, const std::string& filebase) {
