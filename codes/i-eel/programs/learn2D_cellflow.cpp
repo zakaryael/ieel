@@ -88,8 +88,7 @@ int main(int argc, char* argv[]) {
     // define the learning
     MyMat Q;
     MyMat Pi;
-    Pi.set_size(12, 8);
-    Pi.ones();
+    
     
     if(strcmp(Qinitdir.c_str(),"")==0){
         Q.load("Q.csv", arma::csv_ascii);
@@ -113,7 +112,10 @@ int main(int argc, char* argv[]) {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
         Q = readlastQ(indir+"learn.bin",12,8);
     }
-    
+    Pi.set_size(Q.n_rows, Q.n_cols);
+    Pi.ones();
+
+
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
     Ampl.set_size(4);
@@ -121,6 +123,8 @@ int main(int argc, char* argv[]) {
     Ampl(1) = a0/3.0;
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
+
+    
     QLearning QL(Q, Pi, gamma,learnrate,u0,Ampl,epsil);
     char cname[512];
     string fname = outdir+"learn.bin";
