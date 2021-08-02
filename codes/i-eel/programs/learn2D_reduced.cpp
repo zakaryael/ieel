@@ -111,8 +111,7 @@ int main(int argc, char* argv[]) {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
         Q = readlastQ(indir+"learn.bin",4,3);
     }
-    Q = Pi;
-
+    
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
     Ampl.set_size(2);
@@ -138,6 +137,8 @@ int main(int argc, char* argv[]) {
     QL.select_action(); // selecting an acting according to the initial policy
     QL.update_forcing(); // translating the action into physical parameters
     Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
+    if(learning == 1)
+        QL.update_policy();
     
     while(it<nstep)
     {
@@ -145,7 +146,8 @@ int main(int argc, char* argv[]) {
             state = QL.compute_state(Fib.wind(U), Fib.orientation());
             QL.Qupdate(Fib.getcenter(0), previous_state);
             previous_state = state;
-            if(learning == 1) QL.update_policy();
+            if(learning == 1)
+                QL.update_policy();
             QL.select_action();
             QL.update_forcing();
             Fib.setforcing(QL.getp(), QL.getA());
