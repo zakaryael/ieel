@@ -27,6 +27,11 @@ MyMat readlastQ(const std::string& filebase, int ns, int na) {
     return Q;
 }
 
+QLearning::QLearning(double u0, MyCol Ampl){
+    u0_ = u0;
+    Ampl_ = Ampl;
+    p_.resize(2);
+}
 
 QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil, bool merge_zeros){
     merge_zeros_ = merge_zeros;
@@ -97,11 +102,16 @@ void QLearning::select_action(void){
     action_ = dist(generator_);
 }
 
+void QLearning::set_action_to(int a){
+    action_ = a;
+}
 void QLearning::update_policy(void){
     //updates the followed policy
     //epsilon-greedy policy 
     policy_.row(state_).fill(epsilon_ / (double)(naction_ - 1));
     policy_(state_, Q_.row(state_).index_max()) = 1 - epsilon_;
+    cout << policy_ << endl;
+    cout << Q_ << endl;
 }
 
 void QLearning::Qupdate(double xnew, int previous_state) {

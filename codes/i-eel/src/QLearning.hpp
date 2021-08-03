@@ -19,8 +19,9 @@ MyMat readlastQ(const std::string& filebase, int ns, int na);
 
 class QLearning {
 public:
-    // Calss initialisation
+    // Class initialisation
     QLearning();
+    QLearning(double u0, MyCol Ampl);
     QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0, bool merge_zeros=false);
     // 
     void set_seed(void);
@@ -37,20 +38,24 @@ public:
         rew_ = xnew-xold_;
         xold_ = xnew;
     };
+
+    double get_reward(void){
+        return rew_;
+    };
     // update the Q matrix
     void Qupdate(double xnew, int);
     void update_policy(void);
     // define the reward
 
 
-    
+
     inline double printreward(){ return rew_; };
     inline vector<double> getp() { return p_; };
     inline double getA() { return A_; };
     inline double getaction() { return action_; };
     inline double getstate() { return state_; };
 
-    
+    void set_action_to(int a);
     void save(int istep, const std::string& filebase);
     
 private:

@@ -286,7 +286,7 @@ void Fiber::save(const std::string& filebase, Flow& U) {
 			fwrite(&X_(is,1), sizeof(double), 1, fout);
 			fwrite(&X_(is,2), sizeof(double), 1, fout);
 		}
-		
+		/*
 		MyMat V = (X_-Xold_)/dt_;
 		for(int is=0; is<=Ns_; is++) {
 			fwrite(&V(is,0), sizeof(double), 1, fout);
@@ -299,7 +299,7 @@ void Fiber::save(const std::string& filebase, Flow& U) {
 			fwrite(&Uf_(is,1), sizeof(double), 1, fout);
 			fwrite(&Uf_(is,2), sizeof(double), 1, fout);
 		}
-		
+		*/
 		fclose(fout);
 	}
 	else if(filebase.substr(filebase.length()-3,3) == ".nc"){
