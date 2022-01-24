@@ -65,10 +65,10 @@ int main(int argc, char* argv[]) {
     std::default_random_engine rng;
     rng.seed((unsigned) time(&tt));
     std::uniform_real_distribution<double> Unif(0.0,1.0);
-    p.at(0) = Unif(rng);
+    /*p.at(0) = Unif(rng);
     p.at(1) = Unif(rng);
     double r2;
-    /*while((r2 = p.at(0)*p.at(0)+p.at(1)*p.at(1))>1) {
+    while((r2 = p.at(0)*p.at(0)+p.at(1)*p.at(1))>1) {
         p.at(0) = Unif(rng);
         p.at(1) = Unif(rng);
     }
