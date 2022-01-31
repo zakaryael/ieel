@@ -164,6 +164,7 @@ void Fiber2D::alloc() {
     D1Uf_.set_size(Ns_+1,2);
     
     D1_.set_size(Ns_+1,Ns_+1);
+    D1_.zeros();
     D1_.diag(1)  += 1;
     D1_.diag(-1) -= 1;
     D1_(0,0) = -3; D1_(0,1) = 4; D1_(0,2) = -1;
@@ -171,6 +172,7 @@ void Fiber2D::alloc() {
     D1_ /= 2.0*ds_;
     
     D2_.set_size(Ns_+1,Ns_+1);
+    D2_.zeros();
     D2_.diag(1)  += 1;
     D2_.diag()   -= 2;
     D2_.diag(-1) += 1;
@@ -179,12 +181,14 @@ void Fiber2D::alloc() {
     D2_ /= ds_*ds_;
     
     LapDirich_.set_size(Ns_-1,Ns_-1);
+    LapDirich_.zeros();
     LapDirich_.diag() -= 2;
     LapDirich_.diag(1) += 1;
     LapDirich_.diag(-1) += 1;
     LapDirich_ /= ds_*ds_;
     
     D3_.set_size(Ns_+1,Ns_+1);
+    D3.zeros();
     D3_.diag(2)  += 1;
     D3_.diag(1)  -= 2;
     D3_.diag(-1) += 2;
@@ -196,6 +200,7 @@ void Fiber2D::alloc() {
     D3_ /= 2.0*ds_*ds_*ds_;
     
     D4_.set_size(Ns_+1,Ns_+1);
+    D4_.zeros();
     D4_.diag(2)  += 1;
     D4_.diag(1)  -= 4;
     D4_.diag()   += 6;
@@ -208,6 +213,7 @@ void Fiber2D::alloc() {
     D4_ /= ds_*ds_*ds_*ds_;
     
     Op4_.set_size(Ns_-3,Ns_-3);
+    Op4.zeros();
     Op4_.diag(2)  += 1;
     Op4_.diag(1)  -= 4;
     Op4_.diag()   += 6;
