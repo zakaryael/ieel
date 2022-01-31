@@ -88,8 +88,7 @@ int main(int argc, char* argv[]) {
     // define the learning
     MyMat Q;
     MyMat Pi;
-    Pi.set_size(12, 8);
-    Pi.ones();
+    
     
     if(strcmp(Qinitdir.c_str(),"")==0){
         Q.load("Q.csv", arma::csv_ascii);
@@ -113,7 +112,16 @@ int main(int argc, char* argv[]) {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
         Q = readlastQ(indir+"learn.bin",12,8);
     }
+    /*if(strcmp(Pinitdir.c_str(),"")==0){
+        Pi.set_size(Q.n_rows, Q.n_cols);
+        Pi.ones();
+    }
+    else{
+        Pi.load("Pi.csv", arma::csv_ascii);
+    }*/
+    Pi.load("Pi.csv", arma::csv_ascii);
     
+
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
     Ampl.set_size(4);
@@ -121,6 +129,8 @@ int main(int argc, char* argv[]) {
     Ampl(1) = a0/3.0;
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
+
+    
     QLearning QL(Q, Pi, gamma,learnrate,u0,Ampl,epsil);
     char cname[512];
     string fname = outdir+"learn.bin";
@@ -135,10 +145,10 @@ int main(int argc, char* argv[]) {
     cout<<"output every "<<Nout<<" steps"<<endl;
     int it = 0;
     double t = 0;
-
+    int out = 0;
 
     int state, previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); //computing s0
-    QL.select_action(); // selecting an acting according to the initial policy
+    QL.select_action(); // selecting an action according to the initial policy
     QL.update_forcing(); // translating the action into physical parameters
     Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
 
@@ -153,11 +163,12 @@ int main(int argc, char* argv[]) {
             QL.update_forcing();
             Fib.setforcing(QL.getp(), QL.getA());
          }
-        if((it % Nout)==0) {
+        
+        if((it % Nout && out == 1)==0) {
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
-            Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
+            Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
         }
         if((it % Noutlearning)==0) {
             QL.save(it,outdir+"learn.bin");
@@ -166,7 +177,6 @@ int main(int argc, char* argv[]) {
         t += dt;
         it++;
     }
-    
     return 1;
 }
 

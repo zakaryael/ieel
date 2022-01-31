@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
     const string Qinitdir = args.getpath("-Qdir", "--Qinitdir", "", "input directory to a csv file from which the initial Q is read");
     const string Pinitdir = args.getpath("-Pidir", "--Pinitdir", "", "input directory to a csv file from which the initial policy is read");
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
-    const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
+    const double zeta = args.getreal("-z", "--zeta", 5e4, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
     const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
     const double Tmax = args.getreal("-T", "--time",20000.0, "integration time");
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
     std::default_random_engine rng;
     rng.seed((unsigned) time(&tt));
     std::uniform_real_distribution<double> Unif(0.0,1.0);
-    p.at(0) = Unif(rng);
+    /*p.at(0) = Unif(rng);
     p.at(1) = Unif(rng);
     double r2;
     while((r2 = p.at(0)*p.at(0)+p.at(1)*p.at(1))>1) {
@@ -75,7 +75,9 @@ int main(int argc, char* argv[]) {
     p.at(0) /= sqrt(r2);
     p.at(1) /= sqrt(r2);
     if(p.at(0)>0)
-        p.at(0) *= -1;
+        p.at(0) *= -1; */
+    p.at(0) = -1;
+    p.at(1) = 0;
     cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
     Fiber2D Fib(Ns,L,zeta,E,beta,U,p);
     // set the forcing
