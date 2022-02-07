@@ -593,3 +593,21 @@ double Fiber2D::state_update(Flow2D& U) {
     A_ = Ampl_(action_%Ampl_.n_rows);
     return qmax;
 }
+
+void Fiber2D::SaveQL(int it,const std::string& fname, Flow2D& U) {
+    char cname[512];
+    strcpy(cname,fname.c_str());
+    FILE *fout = fopen(cname,"a");
+    double tmp = (double)it;
+    fwrite(&tmp, sizeof(double), 1, fout);
+    fwrite(&Xcgold_, sizeof(double), 1, fout);
+    tmp = getcenter(1);
+    fwrite(&tmp, sizeof(double), 1, fout);
+    fwrite(&rew_, sizeof(double), 1, fout);
+    tmp = (double)state_;
+    fwrite(&tmp, sizeof(double), 1, fout);
+    tmp = (double)action_;
+    fwrite(&tmp, sizeof(double), 1, fout);
+    fwrite(&Q_(0,0), sizeof(double), nstate_*naction_, fout);
+    fclose(fout);
+}

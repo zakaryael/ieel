@@ -43,6 +43,8 @@ public:
     void initQlearning(MyMat Q, double gamma, double learnrate, double u0, MyCol Ampl, Flow2D& U, double epsil=0.0);
     // update the Q matrix
     void Qupdate(Flow2D& U);
+    // save learning variables to the file fname
+    void SaveQL(int it,const std::string& fname, Flow2D& U);
     // define the reward
     inline void reward(){
         double Xcg = getcenter(0);

@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
 	const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
 	const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
 	const int Nout = args.getint("-nout", "--step_out", 2000, "output period (in number of timesteps)");
+    const int Nlearnout = args.getint("-nlout", "--step_output_learning", 200, "output period for learning variables");
     const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
 	const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
 	const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
@@ -103,6 +104,12 @@ int main(int argc, char* argv[]) {
 
     Fib.initQlearning(Q,gamma,learnrate,u0,Ampl,U,epsil);
     
+    char cname[512];
+    string fname = outdir+"learn.bin";
+    strcpy(cname,fname.c_str());
+    FILE *fout = fopen(cname,"w");
+    fclose(fout);
+    
 	// time loop
 	cout<<endl<<"------------------------------------------------"<<endl;
 	int nstep = round(Tmax/dt);
@@ -119,10 +126,13 @@ int main(int argc, char* argv[]) {
             Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }
         Fib.evol(dt,U);
-        t += dt;
-        it++;
         if((it % Nlearning)==0)
             Fib.Qupdate(U);
+        if((it % Nlearnout)==0)
+            Fib.SaveQL(it,fname,U);
+        t += dt;
+        it++;
+        
     }
     
 	return 1;
