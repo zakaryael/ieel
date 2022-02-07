@@ -226,7 +226,7 @@ void Fiber2D::alloc() {
     LapDirich_ /= ds_*ds_;
     
     D3_.set_size(Ns_+1,Ns_+1);
-    D3.zeros();
+    D3_.zeros();
     D3_.diag(2)  += 1;
     D3_.diag(1)  -= 2;
     D3_.diag(-1) += 2;
@@ -251,7 +251,7 @@ void Fiber2D::alloc() {
     D4_ /= ds_*ds_*ds_*ds_;
     
     Op4_.set_size(Ns_-3,Ns_-3);
-    Op4.zeros();
+    Op4_.zeros();
     Op4_.diag(2)  += 1;
     Op4_.diag(1)  -= 4;
     Op4_.diag()   += 6;
