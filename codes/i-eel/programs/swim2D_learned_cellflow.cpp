@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
 	const double om = args.getreal("-om", "--frequency", 2, "Forcing frequency");
 	const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
 	const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
+	const double Lf = args.getreal("-Lf", "--fluidLScale", 2*M_PI, "Fluid-velocity length scale");
 	const int Nlearning = args.getint("-nl", "--step_learning", 2000, "learning period (in number of timesteps)");
 	const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
 	
@@ -43,7 +44,7 @@ int main(int argc, char* argv[]) {
 	
 	// fluid flow set to 0
 	Flow2D U(Cellular);
-	U.initcellular(u);
+	U.initcellular(u,Lf);
 	// define the fiber
 	cout<<endl<<"------------------------------------------------"<<endl;
 	cout<<"Generating a straight fiber of length "<<L<<endl;
@@ -93,14 +94,16 @@ int main(int argc, char* argv[]) {
     //Q(3,1) = 10;  Q(4,0) = 10;  Q(5,3) = 10;
     //Q(6,0) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
     //Q(9,0) = 10;  Q(10,7) = 10; Q(11,7) = 10;
+	// New
+	//Q(0,3) = 10;  Q(1,4) = 10;  Q(2,0) = 10;
+	//Q(3,6) = 10;  Q(4,0) = 10;  Q(5,0) = 10;
+	//Q(6,5) = 10;  Q(7,7) = 10;  Q(8,7) = 10;
+	//Q(9,3) = 10;  Q(10,0) = 10; Q(11,5) = 10;
 
-    int Pol[] = {3, 1, 0, 3, 7, 7};
-    for(int i=0; i<3; ++i) {
-        Q(i,Pol[i]) = 10;
-        Q(i+3,Pol[i]) = 10;
-        Q(i+6,Pol[i+3]) = 10;
-        Q(i+9,Pol[i+3]) = 10;
-    }
+	int Pol[] = {3, 4, 0, 6, 0, 0, 5, 7, 7, 3, 0, 5};
+	for(int i=0; i<12; ++i) {
+		Q(i,Pol[i]) = 10;
+	}
     
     MyCol Ampl;
     double a0 = zeta*alpha*om/(2.0*M_PI*(double)k/L);
