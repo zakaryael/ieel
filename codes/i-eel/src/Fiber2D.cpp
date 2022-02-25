@@ -61,9 +61,9 @@ void Fiber2D::read(int N, double L, double zeta, double E, double beta, Flow2D& 
     interp_U(U);
     setforcing(p, A);
     calc_force();
-    cout << "nu " << nu_ << " omega "<< om_ << " Amplitude " << A_ << " orientation " << p_.at(0) << endl<< endl;  //" F " << F_(100, 0) << " " <<F_(100, 1) << " d1f " << D1F_(100, 0) << " " << D1F_(100, 1) << endl;
+    //cout << "nu " << nu_ << " omega "<< om_ << " Amplitude " << A_ << " orientation " << p_.at(0) << endl<< endl;  //" F " << F_(100, 0) << " " <<F_(100, 1) << " d1f " << D1F_(100, 0) << " " << D1F_(100, 1) << endl;
     calc_tension();
-    cout << " " << T_(100) << endl << endl;
+    //cout << " " << T_(100) << endl << endl;
     D1T_ = D1_*T_;
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     for(int dim=0; dim<2; dim++){
@@ -94,9 +94,9 @@ void Fiber2D::read(Flow2D& U, const std::string& filebase, vector<double> p, dou
     interp_U(U);
     setforcing(p, A);
     calc_force();
-    cout << "nu " << nu_ << " omega "<< om_ << " Amplitude " << A_ << " orientation " << p_.at(0) << endl<< endl;  //" F " << F_(100, 0) << " " <<F_(100, 1) << " d1f " << D1F_(100, 0) << " " << D1F_(100, 1) << endl;
+    //cout << "nu " << nu_ << " omega "<< om_ << " Amplitude " << A_ << " orientation " << p_.at(0) << endl<< endl;  //" F " << F_(100, 0) << " " <<F_(100, 1) << " d1f " << D1F_(100, 0) << " " << D1F_(100, 1) << endl;
     calc_tension();
-    cout << " " << T_(100) << endl << endl;
+    //cout << " " << T_(100) << endl << endl;
     D1T_ = D1_*T_;
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     for(int dim=0; dim<2; dim++){

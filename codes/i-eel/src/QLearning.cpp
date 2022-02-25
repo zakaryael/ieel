@@ -36,12 +36,16 @@ QLearning::QLearning(double u0, MyCol Ampl){
 QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil, bool merge_zeros){
     merge_zeros_ = merge_zeros;
     if(merge_zeros_) {
+        std::cout << "initQlearning: Q  ( " << Q.n_cols << " ) and Ampl ( " << 2 * Ampl.n_rows - 1<< " ) cols are incompatible" << endl;
         if(Q.n_cols != 2*Ampl.n_rows-1)
-            ErrorMsg("initQlearning: Q and Ampl are incompatible");
-    }
+            ErrorMsg("initQlearning: Q and Ampl rows are incompatible (merge)");
+   }
     else {
-        if(Q.n_cols != 2*Ampl.n_rows)
-            ErrorMsg("initQlearning: Q and Ampl are incompatible");
+        if(Q.n_cols != 2*Ampl.n_rows){
+            cout << "initQlearning: Q  ( " << Q.n_cols << " ) and Ampl ( " << Ampl.n_rows << " ) cols are incompatible" << endl;
+            ErrorMsg("initQlearning: Q and Ampl rows are incompatible");
+        }
+
     }
     Q_ = Q;
     nstate_ = Q.n_rows;
@@ -110,8 +114,6 @@ void QLearning::update_policy(void){
     //epsilon-greedy policy 
     policy_.row(state_).fill(epsilon_ / (double)(naction_ - 1));
     policy_(state_, Q_.row(state_).index_max()) = 1 - epsilon_;
-    cout << policy_ << endl;
-    cout << Q_ << endl;
 }
 
 void QLearning::Qupdate(double xnew, int previous_state) {

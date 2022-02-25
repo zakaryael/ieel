@@ -76,7 +76,7 @@ private:
     vector<double> p_; // direction of the helix
     double A_ = 0.0;   // internal amplitude
     double xold_ = 0; // needed to compute the reward
-    bool merge_zeros_ = false;
+    bool merge_zeros_ = true;
 };
 
 #endif /* QLearning_hpp */
