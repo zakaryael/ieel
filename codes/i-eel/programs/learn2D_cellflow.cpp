@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
     const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
     const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
-    const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
+    //const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
     const int learning = args.getint("-lrn", "--learning", 1, "Input 1 for swimming with learning 0 otherwise");
     const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
     const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise"); 
@@ -96,29 +96,12 @@ int main(int argc, char* argv[]) {
     else{
         Q.load(Qinitdir, arma::csv_ascii);
     }
-    if(strcmp(indir.c_str(),"")==0) {
-        cout<<"Start Q from scratch..."<<qinit<<" psych!"<<endl;
-        /*Q.set_size(12,8);
-        for (int i = 0; i <12; i++) {
-            for (int j = 0; j<8; j++)
-                Q(i,j) = qinit;
-        }
-        for (int j = 5; j<8; j++) {
-            Q(2,j) = 0.4*qinit;
-            Q(5,j) = 0.4*qinit;
-        }*/
-    }
-    else {
+
+    if(strcmp(Qinitdir.c_str(),"")>0) {
         cout<<"Start Q from file "<<indir<<"learn.bin"<<endl;
         Q = readlastQ(indir+"learn.bin",12,8);
     }
-    /*if(strcmp(Pinitdir.c_str(),"")==0){
-        Pi.set_size(Q.n_rows, Q.n_cols);
-        Pi.ones();
-    }
-    else{
-        Pi.load("Pi.csv", arma::csv_ascii);
-    }*/
+
     Pi.load("Pi.csv", arma::csv_ascii);
     
 
@@ -131,7 +114,7 @@ int main(int argc, char* argv[]) {
     Ampl(3) = a0;
 
     
-    QLearning QL(Q, Pi, gamma,learnrate,u0,Ampl,epsil);
+    QLearning QL(Q, Pi, gamma,learnrate,u0,Ampl,epsil, true);
     char cname[512];
     string fname = outdir+"learn.bin";
     strcpy(cname, fname.c_str());
@@ -145,7 +128,7 @@ int main(int argc, char* argv[]) {
     cout<<"output every "<<Nout<<" steps"<<endl;
     int it = 0;
     double t = 0;
-    int out = 0;
+    
 
     int state, previous_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); //computing s0
     QL.select_action(); // selecting an action according to the initial policy
@@ -164,11 +147,11 @@ int main(int argc, char* argv[]) {
             Fib.setforcing(QL.getp(), QL.getA());
          }
         
-        if((it % Nout && out == 1)==0) {
+        if((it % Nout == 0)) {
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
-            Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
+            //Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
         }
         if((it % Noutlearning)==0) {
             QL.save(it,outdir+"learn.bin");
@@ -179,4 +162,3 @@ int main(int argc, char* argv[]) {
     }
     return 1;
 }
-

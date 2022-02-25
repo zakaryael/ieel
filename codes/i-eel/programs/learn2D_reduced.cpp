@@ -155,10 +155,11 @@ int main(int argc, char* argv[]) {
             Fib.setforcing(QL.getp(), QL.getA());
         }
         if((it % Nout)==0) {
+            cout << "salam" << endl;
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
-            Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
+            //Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }
         if((it % Noutlearning)==0) {
             QL.save(it,outdir+"learn.bin");
