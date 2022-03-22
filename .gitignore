@@ -9,12 +9,8 @@
 *.synctex.gz
 *~
 *.xcuserstate
-codes/i-eel/build/*
-codes/i-eel/runs/*
+runs/*
+/build/*
 biblio/*
 notes/*
-
-
-
-
-
+runs/*
