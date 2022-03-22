@@ -11,6 +11,4 @@
 *.xcuserstate
 runs/*
 /build/*
-biblio/*
-notes/*
 runs/*
