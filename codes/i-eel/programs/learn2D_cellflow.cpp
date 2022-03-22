@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     const string Qinitdir = args.getpath("-Qdir", "--Qinitdir", "", "input directory to a csv file from which the initial Q is read");
     const string Pinitdir = args.getpath("-Pidir", "--Pinitdir", "", "input directory to a csv file from which the initial policy is read");  
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
-    const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
+    const double zeta = args.getreal("-z", "--zeta", 5e4, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
     const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
     const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
