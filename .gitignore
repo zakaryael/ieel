@@ -1,4 +1,5 @@
 .DS_Store
+.vscode/
 *.aux
 *.log
 *.bbl
@@ -12,3 +13,4 @@
 runs/*
 /build/*
 runs/*
+processinfo
