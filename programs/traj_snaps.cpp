@@ -14,25 +14,26 @@ int main(int argc, char* argv[]) {
     
     // Read the command-line options
     args.section("Program options");
-    const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
-    const string indir = args.getpath("-in", "--indir", "", "input directory from which the trajectory files are read");
+    const string outdir = args.getpath("-o", "--outdir", "output_data/untiteled/", "output directory");
+    const string indir = args.getpath("-in", "--indir", "", "input directory to a binary file from which initial Q is read");
     const string Qinitdir = args.getpath("-Qdir", "--Qinitdir", "", "input directory to a csv file from which the initial Q is read");
     const string Pinitdir = args.getpath("-Pidir", "--Pinitdir", "", "input directory to a csv file from which the initial policy is read");  
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
-    const double zeta = args.getreal("-z", "--zeta", 1e5, "friction coefficient");
+    const double zeta = args.getreal("-z", "--zeta", 2.5e3, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
     const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-    const double Tmax = args.getreal("-T", "--time",10000.0, "integration time");
-    const double dt = args.getreal("-dt", "--timestep", 0.0005, "time step");
+    const double Tmax = args.getreal("-T", "--time",1000.0, "integration time");
+    const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
     const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
     const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
-    const double om = args.getreal("-om", "--frequency", 2, "Forcing frequency");
+    const double om = args.getreal("-om", "--frequency", 20, "Forcing frequency");
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
-    const double u = args.getreal("-U", "--Velocity", 0.05, "Velocity amplitude");
-    const int Nlearning = args.getint("-nl", "--step_learning", 2000, "learning period (in number of timesteps)");
-    const double u0 = args.getreal("-slim", "--speed", 0.01, "Vitesse limite");
-    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow");
-    const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise"); 
+    const double u = args.getreal("-U", "--Velocity", 0.5, "Velocity amplitude");
+    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
+    const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise");
+    const double u0 = args.getreal("-slim", "--speed", 0.1, "Vitesse limite");
+    const int Nlearning = args.getint("-nl", "--step_learning", 100, "learning period (in number of timesteps)");
+
     args.check();
     mkdir(outdir);
     args.save(outdir);
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]) {
 
     for (int n=0; n < Tmax; n++) 
     {  
-        for(int a=1; a < 7; a++){
+        for(int a=0; a < 7; a++){
 
         FILE *fout = fopen(cname,"a");
         // Appends 6 doubles to the file: time, position, current_state, action, next_state, reward.

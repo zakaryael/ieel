@@ -9,7 +9,7 @@ set(program_APPS
   learn2D_cellflow
   learn2D_reduced
   policy_gradient
-  snaps
+  traj_snaps
   )
 
 foreach (program ${program_APPS})

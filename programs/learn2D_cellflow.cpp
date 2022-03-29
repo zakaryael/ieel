@@ -47,7 +47,8 @@ int main(int argc, char* argv[]) {
     //const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
     const int learning = args.getint("-lrn", "--learning", 1, "Input 1 for swimming with learning 0 otherwise");
     const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
-    const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise"); 
+    const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise");
+    const int out = args.getint("-out", "--make_output", 0, "1 for saving trajectory files 0 otherwise");
     args.check();
     mkdir(outdir);
     args.save(outdir);
@@ -155,7 +156,8 @@ int main(int argc, char* argv[]) {
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
-            //Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
+            if(out == 1)
+                {Fib.save(outdir+"fiber"+i2s(it)+".ff",U);}
         }
         if((it % Noutlearning)==0) {
             QL.save(it,outdir+"learn.bin");
