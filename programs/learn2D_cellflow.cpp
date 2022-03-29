@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     
     // Read the command-line options
     args.section("Program options");
-    const string outdir = args.getpath("-o", "--outdir", "data/", "output directory");
+    const string outdir = args.getpath("-o", "--outdir", "output_data/untiteled/", "output directory");
     const string indir = args.getpath("-in", "--indir", "", "input directory to a binary file from which initial Q is read");
     const string Qinitdir = args.getpath("-Qdir", "--Qinitdir", "", "input directory to a csv file from which the initial Q is read");
     const string Pinitdir = args.getpath("-Pidir", "--Pinitdir", "", "input directory to a csv file from which the initial policy is read");  
