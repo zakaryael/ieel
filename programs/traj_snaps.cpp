@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
     const double zeta = args.getreal("-z", "--zeta", 2.5e3, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
     const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-    const double Tmax = args.getreal("-T", "--time",1000.0, "integration time");
+    const double Tmax = args.getreal("-T", "--time",1.0e7, "integration time in multiples of nl");
     const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
     const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
     const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
@@ -72,7 +72,7 @@ int main(int argc, char* argv[]) {
     
     // time loop
     cout<<endl<<"------------------------------------------------"<<endl;
-    int nstep = 100;//round(1/dt);
+    //int nstep = round(1/dt) / ;
     cout<<"output every 1 sec"<<endl;
     int it = 0;
 
@@ -100,7 +100,7 @@ int main(int argc, char* argv[]) {
         fwrite(&tmp, sizeof(double), 1, fout);
 
         it = 0;
-        while(it <= nstep){
+        while(it <= Nlearning){
             Fib.evol(dt,U);
             it++;
         }
