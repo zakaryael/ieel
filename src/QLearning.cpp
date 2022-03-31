@@ -27,18 +27,20 @@ MyMat readlastQ(const std::string& filebase, int ns, int na) {
     return Q;
 }
 
-QLearning::QLearning(double u0, MyCol Ampl){
+QLearning::QLearning(double u0, MyCol Ampl, int naction){
     u0_ = u0;
     Ampl_ = Ampl;
     p_.resize(2);
+    naction_ = naction;
 }
 
 QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil, bool merge_zeros){
     merge_zeros_ = merge_zeros;
     if(merge_zeros_) {
-        std::cout << "initQlearning: Q  ( " << Q.n_cols << " ) and Ampl ( " << 2 * Ampl.n_rows - 1<< " ) cols are incompatible" << endl;
-        if(Q.n_cols != 2*Ampl.n_rows-1)
+        if(Q.n_cols != 2*Ampl.n_rows-1){
+            std::cout << "initQlearning: Q  ( " << Q.n_cols << " ) and Ampl ( " << 2 * Ampl.n_rows - 1<< " ) cols are incompatible" << endl;
             ErrorMsg("initQlearning: Q and Ampl rows are incompatible (merge)");
+        }
    }
     else {
         if(Q.n_cols != 2*Ampl.n_rows){
@@ -125,7 +127,8 @@ void QLearning::Qupdate(double xnew, int previous_state) {
 void QLearning::update_forcing(void){
     // Update the forcing parameters depending on the action
     if(merge_zeros_) {
-        int ii = action_-(naction_-1)/2;
+        int ii = action_ -(naction_-1)/2;
+        
         if(ii>=0) {
             p_.at(0)=1; p_.at(1)=0;
             A_ = Ampl_(ii);

@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     Ampl(3) = a0;
 
     
-    QLearning QL(u0,Ampl);
+    QLearning QL(u0,Ampl, 7);
     char cname[512];
     string fname = outdir+"naive_snaps.bin";
     strcpy(cname, fname.c_str());
@@ -72,55 +72,46 @@ int main(int argc, char* argv[]) {
     
     // time loop
     cout<<endl<<"------------------------------------------------"<<endl;
-    int nstep = round(1/dt);
+    int nstep = 100;//round(1/dt);
     cout<<"output every 1 sec"<<endl;
     int it = 0;
 
     for (int n=0; n < Tmax; n++) 
     {  
         for(int a=0; a < 7; a++){
-
         FILE *fout = fopen(cname,"a");
         // Appends 6 doubles to the file: time, position, current_state, action, next_state, reward.
         double tmp = (double)n;
         fwrite(&tmp, sizeof(double), 1, fout);
-
         QL.set_action_to(a);
 
         tmp = (double)a;
         fwrite(&tmp, sizeof(double), 1, fout);
-
         QL.update_forcing();
         Fib.read(U, indir+"fiber"+i2s(n * Nlearning)+".ff",QL.getp(),QL.getA(), n);
+        
         int current_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
         cout<<"t = "<<n<<setw(10)<<"X = " << setprecision(4)<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << " State: "<< current_state<<endl;
         cout<<"Action: "<< QL.getaction()<<endl;
-
         double xold = Fib.getcenter(0);
         fwrite(&xold, sizeof(double), 1, fout);
 
         tmp = (double)current_state;
         fwrite(&tmp, sizeof(double), 1, fout);
 
-
-
-
         it = 0;
         while(it <= nstep){
             Fib.evol(dt,U);
             it++;
         }
-
         int next_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); 
         cout<<"t = "<<n+1<<setw(10)<<"X = "<< setprecision(4)<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << " State: "<< next_state<<endl; 
-        
         
         tmp = (double)next_state;
         fwrite(&tmp, sizeof(double), 1, fout);
 
         tmp = Fib.getcenter(0);
         fwrite(&tmp, sizeof(double), 1, fout);
-
         tmp = tmp - xold;
         cout << "reward: " << tmp << endl;
         fwrite(&tmp, sizeof(double), 1, fout);
