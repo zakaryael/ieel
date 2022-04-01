@@ -16,3 +16,4 @@ runs/*
 processinfo
 output_data/*
 data/*
+*.ff
