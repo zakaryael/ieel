@@ -155,7 +155,7 @@ void QLearning::save(int istep, double time, const std::string& filebase) {
     FILE *fout = fopen(cname,"a");
     // Appends 5 + nstate_*naction_ doubles to the file
     double tmp = (double)istep;
-    write(&time, sizeof(double), 1, fout);
+    fwrite(&time, sizeof(double), 1, fout);
     fwrite(&tmp, sizeof(double), 1, fout);
     fwrite(&xold_, sizeof(double), 1, fout);
     fwrite(&rew_, sizeof(double), 1, fout);

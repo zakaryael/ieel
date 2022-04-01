@@ -176,10 +176,10 @@ def Qlearning(data, Qinit, lrate0, gamma):
 def load_from_binary_file(dir, number_of_states=6, number_of_actions=8):
     file = open(dir, 'r')
     data = np.fromfile(file, dtype=float)
-    number_of_entries = int(data.shape[0] / (5 + number_of_actions * number_of_states))
-    data = data.reshape(number_of_entries, (5 + number_of_actions * number_of_states))
+    number_of_entries = int(data.shape[0] / (6 + number_of_actions * number_of_states))
+    data = data.reshape(number_of_entries, (6 + number_of_actions * number_of_states))
     Qs = data[:, 5:]
-    header = ['step', 'position', 'reward', 'state', 'action']
+    header = ['step', 'time', 'position', 'reward', 'state', 'action']
     df = pd.DataFrame(data[:, :5], columns=header)
     return df.convert_dtypes(), Qs
 

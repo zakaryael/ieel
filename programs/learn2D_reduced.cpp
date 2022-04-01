@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
             //Fib.save(outdir+"fiber"+i2s(it)+".nc",U);
         }
         if((it % Noutlearning)==0) {
-            QL.save(it,outdir+"learn.bin");
+            QL.save(it,t,outdir+"learn.bin");
         }
         Fib.evol(dt,U);
         t += dt;
