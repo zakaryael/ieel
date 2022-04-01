@@ -56,7 +56,7 @@ public:
     inline double getstate() { return state_; };
 
     void set_action_to(int a);
-    void save(int istep, const std::string& filebase);
+    void save(int istep, double time, const std::string& filebase);
     
 private:
     // Learning parameters
