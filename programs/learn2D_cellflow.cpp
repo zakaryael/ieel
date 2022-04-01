@@ -38,8 +38,8 @@ int main(int argc, char* argv[]) {
     const double om = args.getreal("-om", "--frequency", 20, "Forcing frequency");
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
     const double u = args.getreal("-U", "--Velocity", 0.5, "Velocity amplitude");
-    const int Nlearning = args.getint("-nl", "--step_learning", 100, "learning period (in number of timesteps)");
-    const int Noutlearning = args.getint("-nlout", "--step_save_learning", 100, "learning output period (in number of timesteps)");
+    const int Nlearning = args.getint("-nl", "--step_learning", 10, "learning period (in number of timesteps)");
+    const int Noutlearning = args.getint("-nlout", "--step_save_learning", 10, "learning output period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
     const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
