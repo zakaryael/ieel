@@ -176,11 +176,12 @@ def Qlearning(data, Qinit, lrate0, gamma):
 def load_from_binary_file(dir, number_of_states=6, number_of_actions=8):
     file = open(dir, 'r')
     data = np.fromfile(file, dtype=float)
+    print(6 + number_of_actions * number_of_states)
     number_of_entries = int(data.shape[0] / (6 + number_of_actions * number_of_states))
     data = data.reshape(number_of_entries, (6 + number_of_actions * number_of_states))
-    Qs = data[:, 5:]
+    Qs = data[:, 6:]
     header = ['step', 'time', 'position', 'reward', 'state', 'action']
-    df = pd.DataFrame(data[:, :5], columns=header)
+    df = pd.DataFrame(data[:, :6], columns=header)
     return df.convert_dtypes(), Qs
 
 def MC_rewards_matrix(df, number_of_actions, number_of_states):

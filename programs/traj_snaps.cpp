@@ -75,18 +75,23 @@ int main(int argc, char* argv[]) {
     //int nstep = round(1/dt) / ;
     cout<<"output every 1 sec"<<endl;
     int it = 0;
-
+    double time = 0;
+    double timer;
     for (int n=0; n < Tmax; n++) 
     {  
         for(int a=0; a < 7; a++){
+            
         FILE *fout = fopen(cname,"a");
         // Appends 6 doubles to the file: time, position, current_state, action, next_state, reward.
         double tmp = (double)n;
         fwrite(&tmp, sizeof(double), 1, fout);
+        fwrite(&time, sizeof(double), 1, fout);
+
         QL.set_action_to(a);
 
         tmp = (double)a;
         fwrite(&tmp, sizeof(double), 1, fout);
+
         QL.update_forcing();
         Fib.read(U, indir+"fiber"+i2s(n * Nlearning)+".ff",QL.getp(),QL.getA(), n);
         
@@ -100,10 +105,13 @@ int main(int argc, char* argv[]) {
         fwrite(&tmp, sizeof(double), 1, fout);
 
         it = 0;
-        while(it <= Nlearning){
+        timer = 0;
+        while(it < Nlearning){
             Fib.evol(dt,U);
             it++;
+            timer = timer + dt;
         }
+
         int next_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); 
         cout<<"t = "<<n+1<<setw(10)<<"X = "<< setprecision(4)<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << " State: "<< next_state<<endl; 
         
@@ -119,6 +127,7 @@ int main(int argc, char* argv[]) {
         cout << "__________________" << endl;
         }
         cout << "------------------" << endl << endl;
+        time = time + timer;
     }
     return 1;
 }
