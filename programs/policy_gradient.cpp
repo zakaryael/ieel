@@ -143,7 +143,7 @@ int main(int argc, char* argv[]) {
 
 
     //start of learning
-    QLearning learner(u0, Ampl, 7);
+    QLearning learner(u0, Ampl);
 
     MyCol v;
     v.set_size(6);

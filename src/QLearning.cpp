@@ -27,11 +27,10 @@ MyMat readlastQ(const std::string& filebase, int ns, int na) {
     return Q;
 }
 
-QLearning::QLearning(double u0, MyCol Ampl, int naction){
+QLearning::QLearning(double u0, MyCol Ampl){
     u0_ = u0;
     Ampl_ = Ampl;
     p_.resize(2);
-    naction_ = naction;
 }
 
 QLearning::QLearning(MyMat Q, MyMat Pi, double gamma, double learnrate, double u0, MyCol Ampl, double epsil, bool merge_zeros){
@@ -127,6 +126,7 @@ void QLearning::Qupdate(double xnew, int previous_state) {
 void QLearning::update_forcing(void){
     // Update the forcing parameters depending on the action
     if(merge_zeros_) {
+        naction_ = 2 * Ampl_.size() - 1;
         int ii = action_ -(naction_-1)/2;
         
         if(ii>=0) {

@@ -21,7 +21,7 @@ class QLearning {
 public:
     // Class initialisation
     QLearning();
-    QLearning(double u0, MyCol Ampl, int);
+    QLearning(double u0, MyCol Ampl);
     QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0, bool merge_zeros=false);
     // 
     void set_seed(void);

@@ -6,6 +6,8 @@ import seaborn as sns
 import pandas as pd
 import netCDF4 as nc
 from scipy.stats import norm
+import scipy
+
 
 
 
@@ -176,11 +178,10 @@ def Qlearning(data, Qinit, lrate0, gamma):
 def load_from_binary_file(dir, number_of_states=6, number_of_actions=8):
     file = open(dir, 'r')
     data = np.fromfile(file, dtype=float)
-    print(6 + number_of_actions * number_of_states)
     number_of_entries = int(data.shape[0] / (6 + number_of_actions * number_of_states))
     data = data.reshape(number_of_entries, (6 + number_of_actions * number_of_states))
     Qs = data[:, 6:]
-    header = ['step', 'time', 'position', 'reward', 'state', 'action']
+    header = ['time', 'step', 'position', 'reward', 'state', 'action']
     df = pd.DataFrame(data[:, :6], columns=header)
     return df.convert_dtypes(), Qs
 
@@ -239,6 +240,100 @@ def mc_evol_plot(evol, level, label=""):
     estimation, lower_bound, upper_bound, xx = evol
     plt.plot(xx, estimation, label=label)
     plt.fill_between(xx, lower_bound, upper_bound, alpha=.2, label=str(100*level)+'% level confidence interval')
+    plt.legend()
+
+#compute transition matrices
+    
+def transition_matrices(data, number_of_actions, number_of_states):
+    """Computes the transition matrices"""
+    P = np.zeros((number_of_states, number_of_actions, number_of_states)) #initialize transitions array
+    for s in range(number_of_states):
+        for a in range(number_of_actions):
+            d = data.next_state[(data.current_state == s) & (data.action == a+1)]
+            freq = d.value_counts(normalize=True)
+            for state in range(number_of_states):
+                if state not in freq.index:
+                    freq.loc[state] = 0
+            P[s, a, :] = freq.sort_index()
+    return P
+
+def mixed_policy(pi, number_of_actions = 8, sim=False):
+    pi = pi.astype(int)
+    number_of_states = len(pi)
+    Pi = np.zeros((number_of_states, number_of_actions))
+    for s in range(number_of_states):
+        Pi [s, pi[s] - 1 * sim] = 1 
+    return Pi
+
+#simulate learning
+def get_next_state(current_state, action, data):
+    return np.random.choice(data.next_state[(data.current_state == current_state) & (data.action == action)]) 
+
+def get_reward(current_state, action, next_state, data):
+   return np.random.choice(data.reward[(data.current_state == current_state) & (data.action == action) & (data.next_state == next_state)])
+
+def select_action(state, Pi):
+    prob = Pi[state]
+    return np.random.choice(np.arange(1,8), p=prob)
+def update_Q(Q, current_state, action, next_state, reward, gamma, alpha):
+    action -= 1
+    Q[current_state, action] = (1 - alpha) * Q[current_state, action] + alpha * (reward + gamma * Q[next_state].max())
+    return Q
+
+def update_policy(Q, pi, state, epsilon):
+    a = Q[state].argmax()
+    pi[state] = epsilon / 6
+    pi[state, a] = 1-epsilon
+    return pi
+
+def sim_ql(Qinit, Pinit, gamma, alpha0, epsilon0, T, learn, data, decreasing_lrate=True):
+    print("Starting QL simulation: \n initial policy: {} \n initial Q matrix: {} \n gamma = {}, epsilon0 = {}, alpha0 = {}, learn = {}".format(np.round(Pinit, 2), np.round(Qinit, 2), gamma, epsilon0, alpha0, learn ))
+    pi = Pinit
+    Q = Qinit
+    alpha = alpha0
+    epsilon = epsilon0
+    number_of_states, number_of_actions = Q.shape
+    number_of_visits = np.zeros((number_of_states, number_of_actions))
+    Qmats = np.zeros((T+1, number_of_states, number_of_actions))
+    Qmats[0] = Q
+    current_state = data.current_state.iloc[0] #always start from the same initial state (does it matter?)
+    list = []
+    for t in range(T):
+        action = select_action(current_state, pi)
+        next_state = get_next_state(current_state, action, data)
+        reward = get_reward(current_state, action, next_state, data)
+        number_of_visits[current_state, action-1] += 1
+        if decreasing_lrate: alpha = alpha0 / np.sqrt(number_of_visits[current_state, action-1])
+        Q = update_Q(Q, current_state, action, next_state, reward, gamma, alpha)
+        epsilon = epsilon0 #/ number_of_visits[current_state].sum()
+        if learn: pi = update_policy(Q, pi, current_state, epsilon)
+        Qmats[t+1] = Q
+        list.append([t, current_state, action, next_state, reward, number_of_visits[current_state, action-1]])
+        current_state = next_state
+    return pd.DataFrame(list, columns=['time', 'current_state', 'action', 'next_state', 'reward', 'state-action number of visits']), Qmats
+
+from utils import * #does not work as expected, don't know why
+import scipy
+from scipy.stats import norm
+
+def mc_evol(y, level=0.99):
+    """computes monte carlo evolution with confidence level bounds"""
+    n = y.shape[0]
+    nvec = np.arange(1, n+1)
+    delta = np.cumsum(y) / nvec
+    Var = np.zeros(n)
+    Var[1:] =  (np.cumsum(y**2)[1:] - nvec[1:] * (delta[1:] ** 2)) / nvec[:n-1]; Var[0] = 0
+    q = norm.interval(level)[1]
+    i1 = delta - q * np.sqrt (Var / nvec)
+    i2 = delta + q * np.sqrt (Var / nvec)
+    #return {"delta": delta, "i1": i1, "i2": i2}
+    return delta, i1, i2, nvec
+    
+def mc_evol_plot(evol, level, label=""):
+    """plots mc evolution with confidence bounds """
+    estimation, lower_bound, upper_bound, xx = evol
+    plt.plot(xx, estimation, label=label)
+    #plt.fill_between(xx, lower_bound, upper_bound, alpha=.2, label=str(100*level)+'% level confidence interval')
     plt.legend()
 
 #compute transition matrices

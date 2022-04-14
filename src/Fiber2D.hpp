@@ -27,7 +27,7 @@ public:
     Fiber2D(int Ns, double L, double zeta, double E, double beta);
     Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U, std::default_random_engine& rng);
     Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U, vector<double> p);
-    void read(Flow2D& U, const std::string& filebase, vector<double> p, double A, double t);
+    void read(Flow2D& U, const std::string& filebase);
     void read(int N, double L, double zeta, double E, double beta, Flow2D& U, const std::string& filebase, vector<double>, double, double);
     void set_seed(void);
     void alloc();

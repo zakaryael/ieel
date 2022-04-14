@@ -10,6 +10,7 @@ set(program_APPS
   learn2D_reduced
   policy_gradient
   traj_snaps
+  swim
   )
 
 foreach (program ${program_APPS})

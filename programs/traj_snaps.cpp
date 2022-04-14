@@ -63,7 +63,7 @@ int main(int argc, char* argv[]) {
     Ampl(3) = a0;
 
     
-    QLearning QL(u0,Ampl, 7);
+    QLearning QL(u0,Ampl);
     char cname[512];
     string fname = outdir+"naive_snaps.bin";
     strcpy(cname, fname.c_str());
@@ -93,10 +93,11 @@ int main(int argc, char* argv[]) {
         fwrite(&tmp, sizeof(double), 1, fout);
 
         QL.update_forcing();
-        Fib.read(U, indir+"fiber"+i2s(n * Nlearning)+".ff",QL.getp(),QL.getA(), n);
+        Fib.setforcing(QL.getp(), QL.getA());
+        Fib.read(U, indir+"fiber"+i2s(n * Nlearning)+".ff");
         
         int current_state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
-        cout<<"t = "<<n<<setw(10)<<"X = " << setprecision(4)<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << " State: "<< current_state<<endl;
+        cout<<"t = "<< time <<setw(10)<<"X = " << setprecision(4)<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << " State: "<< current_state<<endl;
         cout<<"Action: "<< QL.getaction()<<endl;
         double xold = Fib.getcenter(0);
         fwrite(&xold, sizeof(double), 1, fout);
