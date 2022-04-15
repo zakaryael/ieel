@@ -79,6 +79,8 @@ int main(int argc, char* argv[]) {
     p.at(1) /= sqrt(r2);
     if(p.at(0)>0)
         p.at(0) *= -1;
+    p.at(0) = -1;
+    p.at(1) = 0;
     cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
     Fiber2D Fib(Ns,L,zeta,E,beta,U,p);
     // set the forcing

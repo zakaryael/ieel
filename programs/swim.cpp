@@ -22,7 +22,6 @@ int main(int argc, char* argv[]) {
     const double zeta = args.getreal("-z", "--zeta", 2.5e3, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
     const double beta = args.getreal("-beta", "--penalisation", 400, "penalisation of extensibility");
-    //const double Tmax = args.getreal("-T", "--time",1.0e7, "integration time in multiples of nl");
     const double dt = args.getreal("-dt", "--timestep", 1e-3, "time step");
     const int Ns = args.getint("-ns", "--Ns", 200, "number of points in the fiber's discretization");
     const int k = args.getint("-k", "--wavenumber", 2, "Forcing wavenumber");
@@ -30,9 +29,8 @@ int main(int argc, char* argv[]) {
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
     const double u = args.getreal("-U", "--Velocity", 0.5, "Velocity amplitude");
     const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
-    //const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise");
     const double u0 = args.getreal("-slim", "--speed", 0.1, "Vitesse limite");
-    const int Nswim = args.getint("-nsw", "--step_swimming", 100, "swimming period (in number of timesteps)");
+    const int Nswim = args.getint("-nsw", "--step_swimming", 10, "swimming period (in number of timesteps)");
 	const int action = args.getint("-a", "action", 6, "the action to implement by the swimmer");
     const int nout = args.getint("-nout", "--step_out", 100, "output period to command line(in number of timesteps)");
 
@@ -93,13 +91,15 @@ int main(int argc, char* argv[]) {
     Swimmer.set_action_to(action);
     Swimmer.update_forcing();
     Fib.setforcing(Swimmer.getp(), Swimmer.getA());
-    
 
+    if(iteration % nout == 0){cout << "position of the center at iteration " << iteration << " (t= " << (iteration) * Nswim * dt << "s) is: " << Fib.getcenter(0) << endl;}
     for(int it = 0; it < Nswim; it++){
         Fib.evol(dt,U);
     }
+
+
     Fib.save(wdir+"fiber"+i2s(iteration+1)+".ff",U);
 
-    if(iteration % nout == 0){cout << "iteration " << iteration << endl;}
+    
     return 1;
 }
