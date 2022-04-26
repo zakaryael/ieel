@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
     MyMat theta;
     theta.set_size(6, 7);
     theta.zeros(); // initialize theta
-    theta.load("Pi.csv", arma::csv_ascii);
+    theta.load("../input_data/theta0.csv", arma::csv_ascii);
     theta = 4 * theta;
     v.zeros(); // initialize v
     MyMat pi;
@@ -158,7 +158,7 @@ int main(int argc, char* argv[]) {
     cout << "hello!" << endl;
     pi = compute_policy(theta);
     
-
+    cout << "hello2!" << endl;
     
     double reward=0;
 
