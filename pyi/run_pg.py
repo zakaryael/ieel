@@ -12,7 +12,7 @@ wavenumber = 2
 frequency = 20
 alpha = 1
 Velocity = 0.5
-
+speed = 0.1
 beta0 = 0.01
 alpha0 = 0.1
 
@@ -33,9 +33,5 @@ command = write_command('../runs/bin/policy_gradient', wdir, outdir=wdir,\
             step_learning=10, step_save_learning=10)
 
 #run the command
-print(command)
 os.system(command)
-
-
-#finally run the command
 
