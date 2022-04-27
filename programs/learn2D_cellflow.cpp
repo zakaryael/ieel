@@ -94,7 +94,7 @@ int main(int argc, char* argv[]) {
     
     
     if(strcmp(Qinitdir.c_str(),"")==0){
-        Q.load("input_data/Q.csv", arma::csv_ascii);
+        Q.load("../input_data/Q.csv", arma::csv_ascii);
         cout<<"initial Q matrix read from csv file:" << endl;
         cout<<Q;
     }
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
         Q = readlastQ(indir+"learn.bin",12,8);
     }
 
-    Pi.load("input_data/Pi.csv", arma::csv_ascii);
+    Pi.load("../input_data/Pi.csv", arma::csv_ascii);
     cout<<"initial policy matrix read from csv file:" << endl;
     cout<<Pi;
     
@@ -141,7 +141,7 @@ int main(int argc, char* argv[]) {
     QL.select_action(); // selecting an action according to the initial policy
     QL.update_forcing(); // translating the action into physical parameters
     Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
-
+    
     while(it<nstep) 
     {
         if((it % Nlearning)==0  && it != 0) {
