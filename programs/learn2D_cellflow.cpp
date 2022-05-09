@@ -38,6 +38,7 @@ int main(int argc, char* argv[]) {
     const double om = args.getreal("-om", "--frequency", 20, "Forcing frequency");
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
     const double u = args.getreal("-U", "--Velocity", 0.5, "Velocity amplitude");
+    const double angle = args.getreal("-ang", "--angle", 0, "initial orientation: angle made with the horisontal in degrees");
     const int Nlearning = args.getint("-nl", "--step_learning", 10, "learning period (in number of timesteps)");
     const int Noutlearning = args.getint("-nlout", "--step_save_learning", 10, "learning output period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
@@ -68,19 +69,8 @@ int main(int argc, char* argv[]) {
     std::default_random_engine rng;
     rng.seed((unsigned) time(&tt));
     std::uniform_real_distribution<double> Unif(0.0,1.0);
-    p.at(0) = Unif(rng);
-    p.at(1) = Unif(rng);
-    double r2;
-    while((r2 = p.at(0)*p.at(0)+p.at(1)*p.at(1))>1) {
-        p.at(0) = Unif(rng);
-        p.at(1) = Unif(rng);
-    }
-    p.at(0) /= sqrt(r2);
-    p.at(1) /= sqrt(r2);
-    if(p.at(0)>0)
-        p.at(0) *= -1;
-    p.at(0) = -1;
-    p.at(1) = 0;
+    p.at(0) = -cos(angle * 3.14 / 180);
+    p.at(1) = sin(angle * 3.14 / 180);
     cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
     Fiber2D Fib(Ns,L,zeta,E,beta,U,p);
     // set the forcing
