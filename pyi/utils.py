@@ -2,12 +2,12 @@ import os
 import numpy as np
 import subprocess
 
-def mkwdir(where='../output_data'):
+def mkwdir(folder_name='wdir', where='../output_data/'):
     counter = 0
-    while os.path.isdir(where + '/wdir' + str(counter)): #improvement: use os.path.join()
+    while os.path.isdir(where + folder_name + str(counter)): #improvement: use os.path.join()
         counter += 1
-    path = where + '/wdir' + str(counter)
-    os.makedirs(where + '/wdir' + str(counter))
+    path = where + folder_name + str(counter)
+    os.makedirs(where + folder_name + str(counter))
     return path
     
 def swim(wdir, iteration, action, nswim=10, nout=10):
