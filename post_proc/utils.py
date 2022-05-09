@@ -203,7 +203,6 @@ def mc_evol_plot(evol, level, label=""):
     plt.legend()
 
 #compute transition matrices
-    
 def transition_matrices(data, number_of_actions, number_of_states):
     """Computes the transition matrices"""
     P = np.zeros((number_of_states, number_of_actions, number_of_states)) #initialize transitions array
