@@ -178,7 +178,7 @@ int main(int argc, char* argv[]) {
         if((it % Nlearning)==0  && it != 0) {
             
             //observe s' and R
-            new_state = learner.compute_state(Fib.wind(U), Fib.orientation());
+            new_state = learner.compute_state(Fib.wind(U), Fib.orientation(), 0);
             
             learner.reward(Fib.getcenter(0)); //weird?
             reward = learner.get_reward();
