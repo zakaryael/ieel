@@ -87,7 +87,9 @@ int main(int argc, char* argv[]) {
     const double beta0 = args.getreal("-beta0", "--learning_param2", 0.01, "Discount rate");
     const double alpha0 = args.getreal("-alpha0", "--learning_param1", 0.1, "Learning rate");
     //const int learning = args.getint("-lrn", "--learning", 1, "Input 1 for swimming with learning 0 otherwise");
-    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
+    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow");
+    const int out = args.getint("-out", "--make_output", 0, "1 for saving trajectory files 0 otherwise");
+ 
 
     args.check();
     mkdir(outdir);
@@ -139,7 +141,6 @@ int main(int argc, char* argv[]) {
     cout<<"output every "<<Nout<<" steps"<<endl;
     int it = 0;
     double t = 0;
-    int out = 0;
 
 
     //start of learning
@@ -155,14 +156,12 @@ int main(int argc, char* argv[]) {
     v.zeros(); // initialize v
     MyMat pi;
     pi.set_size(6, 7);
-    cout << "hello!" << endl;
     pi = compute_policy(theta);
     
-    cout << "hello2!" << endl;
     
     double reward=0;
 
-    int state = learner.compute_state(Fib.wind(U), Fib.orientation());
+    int state = learner.compute_state(Fib.wind(U), Fib.orientation(), 0);
     int new_state;
     int action = select_action(pi, state);
     int new_action;
