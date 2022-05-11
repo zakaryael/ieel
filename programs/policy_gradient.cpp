@@ -154,6 +154,7 @@ int main(int argc, char* argv[]) {
     theta.load("../input_data/theta0.csv", arma::csv_ascii);
     theta = 4 * theta;
     v.zeros(); // initialize v
+    theta.load("../input_data/v0.csv", arma::csv_ascii);
     MyMat pi;
     pi.set_size(6, 7);
     pi = compute_policy(theta);
@@ -183,7 +184,6 @@ int main(int argc, char* argv[]) {
             learner.reward(Fib.getcenter(0)); //weird?
             reward = learner.get_reward();
             
-
             //sample A'
             pi = compute_policy(theta);
             cout << pi;
