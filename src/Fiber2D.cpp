@@ -37,12 +37,13 @@ void Fiber2D::read(int N, double L, double zeta, double E, double beta, Flow2D& 
     E_ = E;
     assert(beta>0);
     beta_ = beta;
-    t_ = 0;
+    t_ = t;
     Fiber2D::alloc();
     
     char cname[512];
     strcpy(cname, filebase.c_str());
     FILE *fin = fopen(cname,"r");
+    cout << "hey 0" << endl;
     for(int is=0; is<=Ns_; is++) {
         double xtmp[2];
         if(fread(&xtmp, sizeof(double), 2, fin)==0) {
@@ -52,53 +53,67 @@ void Fiber2D::read(int N, double L, double zeta, double E, double beta, Flow2D& 
         X_(is,0) = xtmp[0];
         X_(is,1) = xtmp[1];
     }
+    cout << "hey 1" << endl;
+
     fclose(fin);
     
-    Xold_ = X_;
+    Xold_ = X_; 
     diff();
-    //cout << D1_;
-    //D1_.save("tmp_d1x", arma::raw_ascii);
+
     interp_U(U);
     setforcing(p, A);
     calc_force();
-    //cout << "nu " << nu_ << " omega "<< om_ << " Amplitude " << A_ << " orientation " << p_.at(0) << endl<< endl;  //" F " << F_(100, 0) << " " <<F_(100, 1) << " d1f " << D1F_(100, 0) << " " << D1F_(100, 1) << endl;
     calc_tension();
-    //cout << " " << T_(100) << endl << endl;
     D1T_ = D1_*T_;
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     for(int dim=0; dim<2; dim++){
     Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));}
 }
 
-void Fiber2D::read(Flow2D& U, const std::string& filebase) {
-   
-    
+void Fiber2D::read(Flow2D& U, const std::string& filebase, double t, double dt) {
     char cname[512];
     strcpy(cname, filebase.c_str());
     FILE *fin = fopen(cname,"r");
+    MyMat X;
+    X.set_size(Ns_+1, 2);
     for(int is=0; is<=Ns_; is++) {
         double xtmp[2];
         if(fread(&xtmp, sizeof(double), 2, fin)==0) {
             cerr<<"Error in reading "<<filebase<<endl;
             exit(-1);
         }
-        X_(is,0) = xtmp[0];
-        X_(is,1) = xtmp[1];
+        X(is,0) = xtmp[0];
+        X(is,1) = xtmp[1];
+    }
+    MyMat V;
+    V.set_size(Ns_+1, 2);
+    for(int is=0; is<=Ns_; is++) {
+        double xtmp[2];
+        if(fread(&xtmp, sizeof(double), 2, fin)==0) {
+            cerr<<"Error in reading the velocity"<<filebase<<endl;
+            exit(-1);
+        }
+        V(is,0) = xtmp[0];
+        V(is,1) = xtmp[1];
     }
     fclose(fin);
-    
-    Xold_ = X_;
+    t_ = t;
+    dt_ = dt;
+    t_ = t - dt;
+    X_ = X - V * dt_;
     diff();
-
     interp_U(U);
-    //setforcing(p, A);
     calc_force();
     calc_tension();
-
+    
     D1T_ = D1_*T_;
     MyCol SF = F_.col(0)%D1X_.col(0)+F_.col(1)%D1X_.col(1);
     for(int dim=0; dim<2; dim++){
-    Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));}
+    Gold_.col(dim) = Uf_.col(dim) + (2.0/zeta_)*(D1T_%D1X_.col(dim)) + (1.0/zeta_)*(T_%D2X_.col(dim)) + (1.0/zeta_)*(F_.col(dim)+SF%D1X_.col(dim));
+    }
+    Xold_ = X_;
+    X_ = X;
+    t_ = t;
 }
 
 Fiber2D::Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U, std::default_random_engine& rng) {
