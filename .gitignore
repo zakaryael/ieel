@@ -17,3 +17,5 @@ processinfo
 output_data/*
 data/*
 *.ff
+post_proc/__pycache__/utils.cpython-39.pyc
+post_proc/__pycache__/utils.cpython-39.pyc
