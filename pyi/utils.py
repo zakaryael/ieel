@@ -33,18 +33,6 @@ def compute_observation(state, u0=0.1):
     wind = (fluid[0,0] > -u0) + (fluid[0,0] > u0)
     return wind + 3 * orientation
 
-def get_center(state):
-    return state[0].mean(axis=1)
-
-def get_orientation(state):
-    return [state[0][0,0] - get_center(state)[0], state[0][1,0] - get_center(state)[1]]
-
-def compute_observation(state, u0=0.1):
-    center = get_center(state)
-    orientation = get_orientation(state)[0] > 0
-    wind = (state[-1][0,0] > -u0) + (state[-1][0,0] > u0)
-    return wind + 3 * orientation
-
 def det_to_sto_policy(pi, number_of_actions = 7):
     number_of_states = len(pi)
     Pi = np.zeros((number_of_states, number_of_actions))
@@ -164,18 +152,6 @@ def transition_dist(state, action, data):
             dist.append([i, data.state[i+1]])
     return np.array(dist).T
 
-def transition_matrices(data, number_of_actions, number_of_states):
-    P = np.zeros((number_of_states, number_of_actions, number_of_states)) #initialize transitions array
-    for s in range(number_of_states):
-        for a in range(number_of_actions):
-            d = pd.DataFrame(transition_dist(s, a, data)[1])
-            freq = d.value_counts(normalize=True)
-            for state in range(number_of_states):
-                if state not in freq.index:
-                    freq.loc[state] = 0
-            P[s, a, :] = freq.sort_index()
-    return P
-
 def Qevol(Qs):
     number_of_actions = Qs.shape[2]
     number_of_states = Qs.shape[1]
@@ -187,9 +163,6 @@ def Qevol(Qs):
             plt.plot(Qs[:, s, a], label="action " + str(a))
             plt.title("state {}".format(s))
             plt.legend()
-
-def get_reward(state, data):
-    return data[data.state==state].reward
 
 def saveQ(Q, outputname='Q'):
     """ saves a numpy array Q to a csv file"""
