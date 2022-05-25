@@ -11,6 +11,7 @@ set(program_APPS
   policy_gradient
   traj_snaps
   swim
+  swimmer_traj
   )
 
 foreach (program ${program_APPS})
