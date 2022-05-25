@@ -1,8 +1,7 @@
 //
 //  learn2D_cellflow.cpp
 //  i-eel
-//
-//  Created by Jeremie Bec on 24/02/2021.
+////  Created by Jeremie Bec on 24/02/2021.
 //j
 
 
@@ -132,9 +131,10 @@ int main(int argc, char* argv[]) {
     QL.update_forcing(); // translating the action into physical parameters
     Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
     
-    while(it<nstep) 
+    Fib.save(outdir+"fiber"+i2s(0)+".ff",U);
+    while(it<nstep)
     {
-        if((it % Nlearning)==0  && it != 0) {
+        if(((it) % Nlearning)==0){
             state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());
             QL.Qupdate(Fib.getcenter(0), previous_state);
             previous_state = state;
@@ -142,16 +142,16 @@ int main(int argc, char* argv[]) {
             QL.select_action();
             QL.update_forcing();
             Fib.setforcing(QL.getp(), QL.getA());
-         }
+        }
         
-        if((it % Nout == 0)) {
+        if(((it) % Nout == 0)) {
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(10)<<"X = "<<Fib.getcenter(0)<<setw(10)<<"Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(10) << "Action: "<< QL.getaction()<<" State: "<< QL.getstate()<<endl;
             if(out == 1)
                 {Fib.save(outdir+"fiber"+i2s(it)+".ff",U);}
         }
-        if((it % Noutlearning)==0) {
+        if(((it) % Noutlearning)==0) {
             QL.save(it, t, outdir+"learn.bin");
         }
         Fib.evol(dt,U);
