@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 
     //deal with the initial iteration
     Fiber2D Fib;
-    mkdir(wdir);
+    //mkdir(wdir);
     if(iteration == 0){
         args.save(wdir);
         vector<double> p(2);
@@ -73,8 +73,6 @@ int main(int argc, char* argv[]) {
         cout<< "files are stored in: " << wdir.c_str() << endl;
         cout<<"initial orientation: p = ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
         cout<<"k="<<k<<"\tom="<<om<<"\talpha="<<alpha<<endl;
-        
-
     }
     else{
         Fib = Fiber2D(Ns, L, zeta, E, beta);
@@ -86,12 +84,12 @@ int main(int argc, char* argv[]) {
 
     //create the swimmer
     QLearning Swimmer(u0,Ampl);
-    
+
     //set and implement the action
     Swimmer.set_action_to(action);
     Swimmer.update_forcing();
     Fib.setforcing(Swimmer.getp(), Swimmer.getA());
-
+    
     if(iteration % nout == 0){cout << "position of the center at iteration " << iteration << " (t= " << (iteration) * Nswim * dt << "s) is: " << Fib.getcenter(0) << endl;}
     for(int it = 0; it < Nswim; it++){
         Fib.evol(dt,U);
