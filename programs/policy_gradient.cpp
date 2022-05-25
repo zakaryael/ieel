@@ -129,7 +129,7 @@ int main(int argc, char* argv[]) {
     
     
     char cname[512];
-    string fname = outdir+"naive.bin";
+    string fname = outdir+"pg.bin";
     strcpy(cname, fname.c_str());
     FILE *fout = fopen(cname,"w");
     fclose(fout);
