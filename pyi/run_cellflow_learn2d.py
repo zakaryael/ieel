@@ -1,41 +1,27 @@
-
 from utils import *
 
 #parameters:
-length = 1.0
-zeta = 2.5e3
-EI = 1.0
-beta = 400
-timestep = 1e-3
-Ns = 200
-wavenumber = 2
-frequency = 20
-alpha = 1
-Velocity = 0.5
-speed = 0.1
-#
-learning = 0
-angle = 45
-learnrate = 0.005
+phys_params = {'length': 1.0, 'zeta': 2500.0, 'EI': 1.0,
+    'penalisation': 400, 'timestep': 0.001, 'Ns': 200, 'wavenumber': 2, 'frequency': 20, 'alpha': 1,
+    'Velocity': 0.5, 'speed': 0.1}
+
+specific_params = {'learnrate':5e-3, 'learning': 0, 'angle': -45}
+
+common_params = {
+    'make_output': 1, 'step_out':10, 'step_learning':10, 'step_save_learning':10
+}
 
 #make a working directory
-wdir = mkwdir()
+wdir = mkwdir('cellflow')
 
-#create theta0.csv where it should be created
-pi0 = [0, 0, 0, 6, 6, 6]
+pi0 = [3, 3, 3, 3, 6, 6]
 Pi0 = det_to_sto_policy(pi0)
-theta0 = 1 * Pi0
 save_csv(Pi0, '../input_data/Pi')
 save_csv(pi0, wdir + "/policy")
 #save the various parameters
-angle = np.random.rand() * 180
-print(angle)
-command = write_command('../runs/bin/learn2D_cellflow', wdir, outdir=wdir,\
-            time=1e4,length=length, zeta=zeta, EI=EI, penalisation=beta, timestep=timestep,\
-            Ns=Ns, wavenumber=wavenumber, frequency=frequency, alpha=alpha,\
-            Velocity=Velocity, learning=learning,\
-            step_learning=10, step_save_learning=10, make_output=1, angle=angle, step_out=10)
+#angle = np.random.rand() * 180
+#print(angle)
+command = write_command('../runs/bin/learn2D_cellflow', wdir, outdir=wdir, time=10000, **{**phys_params, **specific_params, **common_params})
 
 #run the command
 os.system(command)
-
