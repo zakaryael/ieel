@@ -126,8 +126,6 @@ int main(int argc, char* argv[]) {
     Ampl(2) = 2.0*a0/3.0;
     Ampl(3) = a0;
 
-    
-    
     char cname[512];
     string fname = outdir+"pg.bin";
     strcpy(cname, fname.c_str());
@@ -185,7 +183,6 @@ int main(int argc, char* argv[]) {
             
             //sample A'
             pi = compute_policy(theta);
-            cout << pi;
             new_action = select_action(pi, new_state);
             
             //compute TD(0) error
@@ -213,7 +210,9 @@ int main(int argc, char* argv[]) {
             cout<<setprecision(3);
             //cout << showpoint;
             cout<<"t = "<<t<<setw(4)<< " X = "<<Fib.getcenter(0)<<setw(4)<<" Vx = "<<Fib.getvelocity(0) << setprecision(1) << setw(4) << " Action: "<< learner.getaction()<<" State: "<< learner.getstate()<<endl;
+            if(it % (Nout * 10) == 0) cout << pi;
             if(out == 1) Fib.save(outdir+"fiber"+i2s(it)+".ff",U);
+            cout << "__________________" << endl;
         }
         if((it % Noutlearning)==0) {
             FILE *fout = fopen(cname,"a");
@@ -231,7 +230,7 @@ int main(int argc, char* argv[]) {
 
             fwrite(&theta(0,0), sizeof(double), 42, fout);
             fwrite(&v(0,0), sizeof(double), 6, fout);
-            cout << "__________________" << endl;
+            
             fclose(fout);
         }
         Fib.evol(dt,U);
