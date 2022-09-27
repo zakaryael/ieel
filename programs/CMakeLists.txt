@@ -12,6 +12,7 @@ set(program_APPS
   traj_snaps
   swim
   swimmer_traj
+  markovianization
   )
 
 foreach (program ${program_APPS})
