@@ -81,10 +81,14 @@ int main(int argc, char* argv[]) {
         for(int a=0; a<7; a++) {
             FibTab.at(a) = Fib;
             QL.set_action_to(a);
-            QL.update_forcing();
             FibTab.at(a).setforcing(QL.getp(), QL.getA());
+            Fib.setforcing(QL.getp(), QL.getA());
+            QL.update_forcing();
             for(int it=0; it<Nlearn; ++it) {
-                FibTab.at(a).evol(dt,U);
+                cout << "entered the loop!" << endl;
+                Fib.evol(dt, U);
+                //FibTab.at(a).evol(dt,U);
+                cout << "passed!" << endl;
             }
             // Outputs
             FILE *fout = fopen(cname,"a");

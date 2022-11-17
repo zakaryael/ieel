@@ -106,6 +106,9 @@ void QLearning::select_action(void){
     std::discrete_distribution<int> dist(tmp.begin(), tmp.end());
     action_ = dist(generator_);
 }
+int QLearning::get_action(void){
+    return action_;
+}
 
 void QLearning::set_action_to(int a){
     action_ = a;
@@ -117,9 +120,17 @@ void QLearning::update_policy(void){
     policy_(state_, Q_.row(state_).index_max()) = 1 - epsilon_;
 }
 
+void QLearning::update_Q(int state, int action, double value){
+    Q_(state, action) = value;
+}
+
+double QLearning::get_Q(int state, int action){
+    return Q_(state, action);
+}
+
 void QLearning::Qupdate(double xnew, int previous_state) {
     //updates the value of Q
-    reward(xnew);
+    reward(xnew); // :(
     Q_(previous_state, action_) = (1.0 - learnrate_) * Q_(previous_state, action_) + learnrate_ * (rew_ + gamma_ * Q_.row(state_).max());
 }
 

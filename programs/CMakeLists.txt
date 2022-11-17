@@ -13,6 +13,7 @@ set(program_APPS
   swim
   swimmer_traj
   markovianization
+  bootstrapping_cellflow
   )
 
 foreach (program ${program_APPS})

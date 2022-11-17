@@ -33,16 +33,27 @@ public:
     int compute_state(double u, vector<double> P, int buckl);
     int compute_state(double u, vector<double> P);
     void select_action(void);
+    int get_action(void);
     void update_forcing(void);
     inline void reward(double xnew){
         rew_ = xnew-xold_;
         xold_ = xnew;
     };
 
-    double get_reward(void){
+    double get_reward(){
         return rew_;
     };
+    void show_Q(void){
+        std::cout << "Q: " << endl;
+        std::cout << Q_;
+    };
+    void show_policy(void){
+        std::cout << "pi: " << endl;
+        std::cout << policy_;
+    };
+    double get_Q(int, int); // get the value of the q matrix for a state-action pair
     // update the Q matrix
+    void update_Q(int, int, double); // updates the Q value corresponding to a state-action pair
     void Qupdate(double xnew, int);
     void update_policy(void);
     // define the reward
@@ -80,4 +91,3 @@ private:
 };
 
 #endif /* QLearning_hpp */
-
