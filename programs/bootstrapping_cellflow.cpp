@@ -4,7 +4,6 @@
 ////  Created by Jeremie Bec on 24/02/2021.
 //j
 
-
 #include "src/Fiber2D.hpp"
 #include "src/QLearning.hpp"
 #include "basics/RunsIO.h"
@@ -182,6 +181,8 @@ int main(int argc, char* argv[]) {
                 if(it % Nout == 0) cout << "target: " << G + pow(gamma, n_bootstrapping - 1) * QL.get_Q(states[ind_prim], actions[ind_prim]) << endl;
                 QL.update_Q(states.at(s), actions.at(a), Q_new);
                 if(learning == 1) QL.update_policy();
+                //if (debug == 1)
+                cout << " state: " << s << " action: " << a << " Q_old: " << Q_old << " G: " << G << " Q_new: " << Q_new << " Q new check: " << QL.get_Q(s, a) << endl;
             }
 
             //update stored values

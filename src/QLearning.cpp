@@ -121,11 +121,11 @@ void QLearning::update_policy(void){
 }
 
 void QLearning::update_Q(int state, int action, double value){
-    Q_(state, action) = value;
+    Q_.at(state, action) = value;
 }
 
 double QLearning::get_Q(int state, int action){
-    return Q_(state, action);
+    return Q_.at(state, action);
 }
 
 void QLearning::Qupdate(double xnew, int previous_state) {
