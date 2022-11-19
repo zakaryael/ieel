@@ -42,6 +42,7 @@ int main(int argc, char* argv[]) {
     const int Noutlearning = args.getint("-nlout", "--step_save_learning", 10, "learning output period (in number of timesteps)");
     const double gamma = args.getreal("-gamma", "--discountrate", 0.9995, "Discount rate");
     const double learnrate = args.getreal("-lr", "--learnrate", 0.005, "Learning rate");
+    const double learnrate2 = args.getreal("-lr2", "--learnrate2", 0.001, "Learning rate");
     const double epsil = args.getreal("-eps", "--epsilon", 0.0, "Rate of random exploration");
     const double u0 = args.getreal("-slim", "--speed", 0.1, "Vitesse limite");
     //const double qinit = args.getreal("-q0", "--qinit", 0.25, "Initial Q entries");
@@ -49,7 +50,8 @@ int main(int argc, char* argv[]) {
     const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
     const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise");
     const int out = args.getint("-out", "--make_output", 0, "1 for saving trajectory files 0 otherwise");
-    const int n_bootstrapping = args.getint("nb", "--n_bootstrapping", 10000, "number of steps for bootstrapping");
+    const int n_bootstrapping = args.getint("nb", "--n_bootstrapping", 10, "number of steps for bootstrapping");
+    const int debug = args.getint("-debug", "--debug", 0, "1 for debug mode 0 otherwise");
     args.check();
     mkdir(outdir);
     args.save(outdir);
@@ -137,16 +139,20 @@ int main(int argc, char* argv[]) {
     int it = 0;
     double t = 0;
     
+    int state;
+    int action;
 
-    int state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());//initial state
-    QL.select_action();
-    int action = QL.get_action();
-    QL.update_forcing(); // translating the action into physical parameters
-    Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
+    //int state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());//initial state
+    //QL.select_action();
+    //int action = QL.get_action();
+    //QL.update_forcing(); // translating the action into physical parameters
+    //Fib.setforcing(QL.getp(), QL.getA()); //forcing the physical parameter
     Fib.save(outdir+"fiber"+i2s(0)+".ff",U);
 
     int learning_step; // a variable to store the step in multiples of Nlearn   
     double G; // to store the target value for TD(n) 
+    double Rbar=0;
+    double delta=0;
     int ind = 0;
 
     while(it<nstep)
@@ -169,7 +175,7 @@ int main(int argc, char* argv[]) {
                 // update the target value
                 G = 0;
                 for(int i = 0; i < n_bootstrapping - 1; i++){
-                    G = G + pow(gamma, i) * rewards[(ind + i + 1) % n_bootstrapping];
+                    G = G + rewards[(ind + i + 1) % n_bootstrapping] - Rbar;
                 }
                 // S_{t-n}, A_{t-n}
                 int s = states.at(ind), a = actions.at(ind);
@@ -177,13 +183,16 @@ int main(int argc, char* argv[]) {
                 int ind_prim = (ind + n_bootstrapping - 1) % n_bootstrapping;
                 // old value of Q:
                 double Q_old = QL.get_Q(s, a);
-                // new estimate q_new = q_old + alpha * (G + pow(gamma, ind)*q(current_s, current_a) - q_old)
-                double Q_new = Q_old + learnrate * (G + pow(gamma, n_bootstrapping - 1) * QL.get_Q(states[ind_prim], actions[ind_prim]) - Q_old);
+                //compute delta
+                delta = G +  QL.get_Q(states[ind_prim], actions[ind_prim]) - Q_old;
+                // update Rbar
+                Rbar += learnrate2 * delta;
+                // new estimate q_new = q_old + alpha * delta
+                double Q_new = Q_old + learnrate * delta;
                 if(it % Nout == 0) cout << "target: " << G + pow(gamma, n_bootstrapping - 1) * QL.get_Q(states[ind_prim], actions[ind_prim]) << endl;
                 QL.update_Q(states.at(s), actions.at(a), Q_new);
                 if(learning == 1) QL.update_policy();
-                //if (debug == 1)
-                cout << " state: " << s << " action: " << a << " Q_old: " << Q_old << " G: " << G << " Q_new: " << Q_new << " Q new check: " << QL.get_Q(s, a) << endl;
+                if (debug == 1) cout << " state: " << s << " action: " << a << " Q_old: " << Q_old << " G: " << G << " Q_new: " << Q_new << " Q new check: " << QL.get_Q(s, a) << endl;
             }
 
             //update stored values

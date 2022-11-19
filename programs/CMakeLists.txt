@@ -14,6 +14,7 @@ set(program_APPS
   swimmer_traj
   markovianization
   bootstrapping_cellflow
+  semi_differential_sarsa
   )
 
 foreach (program ${program_APPS})
