@@ -15,32 +15,6 @@ using namespace std;
 using namespace arma;
 
 
-MyCol get_features_vector(MyCol state, double x, double y){
-    MyCol features; //4 state, 1 x, 1 y, 1 x % 2, 1 y % 2, total = 8 + 4 * 7 = 36
-    int n = 8;
-    features.set_size(n);
-    MyCol features_with_interactions;
-    features_with_interactions.set_size((std::floor(n * (n+1) / 2)));
-
-    features.at(0) = state.at(0);
-    features.at(1) = state.at(1);
-    features.at(2) = state.at(2);
-    features.at(3) = (float) state.at(3);
-    features.at(4) = fmod(x, 2);
-    features.at(5) = fmod(y , 2);
-    features.at(6) = (float)fmod(x, 2) > 1;
-    features.at(7) = (float)fmod(y, 2) > 1 ;
-
-    for(int i=0; i < n; i++){
-        features_with_interactions.at(i) = features.at(i);
-        for(int j=i+1; j < n; j++){
-            int ind = (j-i) * n + i - std::floor((j-i) * (j-i-1) / 2);
-            features_with_interactions.at(ind) = features.at(i) * features.at(j);
-        }
-    }
-    return features_with_interactions;
-}
-
 MyMat compute_policy(MyMat theta){
     MyMat P = exp(theta);
     for(int i=0; i < 6; i++){
