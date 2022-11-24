@@ -15,6 +15,7 @@ set(program_APPS
   markovianization
   bootstrapping_cellflow
   semi_differential_sarsa
+  pg_with_et
   )
 
 foreach (program ${program_APPS})
