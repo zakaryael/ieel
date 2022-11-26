@@ -12,6 +12,10 @@ set(program_APPS
   traj_snaps
   swim
   swimmer_traj
+  markovianization
+  bootstrapping_cellflow
+  semi_differential_sarsa
+  pg_with_et
   )
 
 foreach (program ${program_APPS})

@@ -19,3 +19,6 @@ data/*
 *.ff
 post_proc/__pycache__/utils.cpython-39.pyc
 post_proc/__pycache__/utils.cpython-39.pyc
+env/*
+post_proc/.ipynb_checkpoints/policy_gradient-checkpoint.ipynb
+pyi/__pycache__/utils.cpython-310.pyc
