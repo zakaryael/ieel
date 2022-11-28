@@ -9,6 +9,7 @@
 #include "basics/RunsIO.h"
 #include "basics/Arglist.h"
 #include <armadillo>
+#include "utils.h"
 
 using namespace std;
 

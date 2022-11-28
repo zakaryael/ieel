@@ -9,6 +9,7 @@
 #include "basics/RunsIO.h"
 #include "basics/Arglist.h"
 #include <armadillo>
+#include "utils.h"
 
 using namespace std;
 
@@ -142,6 +143,7 @@ int main(int argc, char* argv[]) {
     
     int state;
     int action;
+    double reward;
 
     //int state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle());//initial state
     //QL.select_action();
@@ -162,7 +164,7 @@ int main(int argc, char* argv[]) {
             learning_step = it / Nlearning;
             state = QL.compute_state(Fib.wind(U), Fib.orientation(), incl_buckl * Fib.calc_buckle()); // compute the new state
             QL.reward(Fib.getcenter(0));
-            double reward = QL.get_reward(); // reward of the previous step
+            reward = QL.get_reward(); // reward of the previous step
             QL.select_action();
             action = QL.get_action();
             QL.update_forcing();
@@ -223,6 +225,7 @@ int main(int argc, char* argv[]) {
         }
         if(((it) % Noutlearning)==0) {
             QL.save(it, t, outdir+"learn.bin");
+            save(it, t, Fib.getcenter(0), state, action, reward, delta, Rbar, Q);
         }
         Fib.evol(dt,U);
         t += dt;

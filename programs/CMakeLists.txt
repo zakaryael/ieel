@@ -3,6 +3,7 @@
 #
 #
 set(program_APPS
+  utils
   test_buckling
   test_swim
   test_buckling2D

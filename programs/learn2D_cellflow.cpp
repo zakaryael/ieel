@@ -9,6 +9,7 @@
 #include "src/QLearning.hpp"
 #include "basics/RunsIO.h"
 #include "basics/Arglist.h"
+#include "utils.h"
 
 using namespace std;
 
