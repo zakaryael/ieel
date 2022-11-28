@@ -16,7 +16,7 @@ int main(int argc, char* argv[]) {
     args.section("Program options");
     const string outdir = args.getpath("-o", "--outdir", "output_data/untiteled/", "output directory");
     const string indir = args.getpath("-in", "--indir", "", "input directory to a binary file from which initial Q is read");
-    const string PiFile = args.getpath("-Pi", "--PiFile", "", "csv file from which the initial policy is read");  
+    const string PiFile = args.getpath("-Pi", "--PiFile", "", "csv file from which the initial policy is read");
     const double L = args.getreal("-L", "--length", 1.0, "fiber length");
     const double zeta = args.getreal("-z", "--zeta", 2.5e3, "friction coefficient");
     const double E = args.getreal("-E", "--EI", 1.0, "Young modulus");
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
     const double om = args.getreal("-om", "--frequency", 20, "Forcing frequency");
     const double alpha = args.getreal("-alpha", "--alpha", 1, "Force amplitude");
     const double u = args.getreal("-U", "--Velocity", 0.5, "Velocity amplitude");
-    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow"); 
+    const int noflow = args.getint("-nfl", "--noflow", 0, "Input 1 for no flow 0 for cellular flow");
     const int incl_buckl = args.getint("-bckl", "--incl_buckl", 0, "Input 1 to include buckled states 0 otherwise");
     const double u0 = args.getreal("-slim", "--speed", 0.1, "Vitesse limite");
     const int Nlearn = args.getint("-nl", "--step_learning", 100, "learning period (in number of timesteps)");
@@ -43,11 +43,12 @@ int main(int argc, char* argv[]) {
     // To set the fluid flow set to 0:
     if (noflow == 1){Flow2D U(Null);}
     
-
-
+    
+    
     // define the learning
     vector<int> PiVec = {3,3,3,3,6,6};
-    Fiber2D Fib(Ns, L, zeta, E, beta);
+    vector<double> pinit = {-1,0};
+    Fiber2D Fib(Ns, L, zeta, E, beta, U, pinit);
     vector <Fiber2D> FibTab(7);
     // set the forcing
     cout<<endl<<"------------------------------------------------"<<endl;
@@ -81,14 +82,14 @@ int main(int argc, char* argv[]) {
         for(int a=0; a<7; a++) {
             FibTab.at(a) = Fib;
             QL.set_action_to(a);
-            FibTab.at(a).setforcing(QL.getp(), QL.getA());
-            Fib.setforcing(QL.getp(), QL.getA());
             QL.update_forcing();
+            FibTab.at(a).setforcing(QL.getp(), QL.getA());
+            //Fib.setforcing(QL.getp(), QL.getA());
             for(int it=0; it<Nlearn; ++it) {
-                cout << "entered the loop!" << endl;
-                Fib.evol(dt, U);
-                //FibTab.at(a).evol(dt,U);
-                cout << "passed!" << endl;
+                //cout << "entered the loop!" << endl;
+                //Fib.evol(dt, U);
+                FibTab.at(a).evol(dt,U);
+                //cout << "passed!" << endl;
             }
             // Outputs
             FILE *fout = fopen(cname,"a");
