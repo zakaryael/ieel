@@ -225,7 +225,7 @@ int main(int argc, char* argv[]) {
         }
         if(((it) % Noutlearning)==0) {
             QL.save(it, t, outdir+"learn.bin");
-            save(it, t, Fib.getcenter(0), state, action, reward, delta, Rbar, Q);
+            save(outdir+"learn.bin", it, t, Fib.getcenter(0), state, action, reward, delta, Rbar, Q);
         }
         Fib.evol(dt,U);
         t += dt;

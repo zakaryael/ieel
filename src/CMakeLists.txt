@@ -10,6 +10,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/Fiber2D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Flow2D.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/QLearning.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../programs/utils.cpp
 )
 
 set(
@@ -19,6 +20,7 @@ set(
     ${CMAKE_CURRENT_SOURCE_DIR}/Fiber2D.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Flow2D.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/QLearning.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/../programs/utils.h
 )
 
 # Define the target with appropriate dependencies

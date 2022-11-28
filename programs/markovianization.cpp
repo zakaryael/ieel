@@ -84,13 +84,10 @@ int main(int argc, char* argv[]) {
             QL.set_action_to(a);
             QL.update_forcing();
             FibTab.at(a).setforcing(QL.getp(), QL.getA());
-            //Fib.setforcing(QL.getp(), QL.getA());
             for(int it=0; it<Nlearn; ++it) {
-                //cout << "entered the loop!" << endl;
-                //Fib.evol(dt, U);
                 FibTab.at(a).evol(dt,U);
-                //cout << "passed!" << endl;
             }
+            cout << "time: " << n * Nlearn * dt << " old position: " << xold << " state, action: " << oldstate << ", " << a << " new positions: " << FibTab.at(a).getcenter(0) << endl;
             // Outputs
             FILE *fout = fopen(cname,"a");
             // 0: step number
