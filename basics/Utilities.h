@@ -84,7 +84,7 @@ inline string i2s(int n, int length, char pad) {
 inline std::string r2s(double r) {
 	const int Nbuf = 32;
 	char buff[Nbuf];
-	sprintf(buff, "%g", r);
+	snprintf(buff, 32, "%g", r);
 	return std::string(buff);
 }
 

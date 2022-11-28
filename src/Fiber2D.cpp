@@ -172,10 +172,14 @@ Fiber2D::Fiber2D(int N, double L, double zeta, double E, double beta, Flow2D& U,
     assert(beta>0);
     beta_ = beta;
     
-    Fiber2D::alloc();
-    
+    //
+    cout<<endl<<"------------------------------------------------"<<endl;
+    cout<<"Initializing fiber with Ns="<<Ns_<<" L="<<L_<<" zeta="<<zeta_<<" E="<<E_<<" beta="<<beta_<<endl;
+    cout<<"and orientation ("<<p.at(0)<<","<<p.at(1)<<")"<<endl;
     double rr = sqrt(p.at(0)*p.at(0)+p.at(1)*p.at(1));
     p.at(0) /= rr; p.at(1) /= rr;
+    
+    Fiber2D::alloc();
     
     X_(0,0) = -L_*p.at(0)/2.0;
     X_(0,1) = -L_*p.at(1)/2.0;
@@ -408,6 +412,7 @@ void Fiber2D::calc_tension() {
     if(spsolve(Ttmp,Lap,A,"superlu")==false || isnan(Ttmp(0))) {
         cerr<<"No solution for the tension"<<endl;
         X_.save("X.dat",raw_ascii);
+        F_.save("F.dat",raw_ascii);
         exit(-1);
     }
     T_(0) = 0;
