@@ -23,12 +23,12 @@ public:
     QLearning();
     QLearning(double u0, MyCol Ampl);
     QLearning(MyMat Q, MyMat, double gamma, double learnrate, double u0, MyCol Ampl, double epsil=0.0, bool merge_zeros=false);
-    // 
+    //
     void set_seed(void);
     int discr_wind(double wind);
     int discr_orientation(vector<double> P);
     void save(const std::string& filebase);
-    
+
     //
     int compute_state(double u, vector<double> P, int buckl);
     int compute_state(double u, vector<double> P);
@@ -42,6 +42,9 @@ public:
 
     double get_reward(){
         return rew_;
+    };
+    MyMat get_Q(void){
+        return Q_;
     };
     void show_Q(void){
         std::cout << "Q: " << endl;
@@ -68,7 +71,7 @@ public:
 
     void set_action_to(int a);
     void save(int istep, double time, const std::string& filebase);
-    
+
 private:
     // Learning parameters
     MyMat Q_; // Q-table
